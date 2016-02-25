@@ -59,6 +59,7 @@
     </div>
   </div>
   <script>
+  $.ajaxSetup({xhrFields: {withCredentials: true}})
   function outputUpdate(vol) {
     document.querySelector('#thickness').value = vol + " mm";
   }
