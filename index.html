@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html>
+
 <head>
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet" type="text/css">
   <meta charset="utf-8">
@@ -33,6 +32,7 @@
         <form id="add-post" class="cf">
 
           <div style="margin-top:40px;" >
+            <input id="user_email" type="text" name="email" class="form-control" placeholder="your@email.com">
             <label for="length_fader">Length</label><br>
             Select the length of the desk(use arrow keys for accuracy):<br><br>
             <input type="range" min="1000" max="2400" value="1700" id="length_fader" step="1" oninput="outputUpdate2(value)">
@@ -51,7 +51,7 @@
                         margin-bottom:15px;
                         width:100%;"
                         class="col-md-offset- col-md-6">
-              <button type="submit" class="btn" style="width:100%;background-color:#F3FFFA;border-radius: 0px">Generate files</button>
+              <button id="submit-btn" type="submit" class="btn" style="width:100%;background-color:#F3FFFA;border-radius: 0px">Generate files</button>
             </div>
           </div>
         </form>
@@ -72,18 +72,21 @@
     var form = $('#add-post');
       form.find('button').click(function (e) {
         e.preventDefault();
-        console.log(form.find('#thickness').val().slice(0, -3))
-        console.log(form.find('#length').val().slice(0, -3))
+        var thickness = form.find('#thickness').val().slice(0, -3)
+        var length = form.find('#length').val().slice(0, -3)
+        var email = form.find('#user_email').val()
         $.ajax({
           url: 'https://opendesk-develop.herokuapp.com/api/v1/inventor-on-demand-beta',
           type: 'post',
           contentType: 'application/json',
           data: JSON.stringify({
-            text: form.find('textarea').val(),
-            now: Date.now()
+            email: email,
+            length: length,
+            thickness: thickness
           }),
           success: function () {
-            console.log("XXX");
+            $('#submit-btn').hide()
+            alert('You created a job, we will email you a file in the next minutes.')
           },
           error: function () {
             alert('Failed to create a job, email harry@opendesk.cc with details.')
@@ -96,4 +99,4 @@
 </script>
 
 </body>
-</html>
+
