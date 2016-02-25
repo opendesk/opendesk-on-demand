@@ -78,10 +78,6 @@
           url: 'https://opendesk-develop.herokuapp.com/api/v1/inventor-on-demand-beta',
           type: 'post',
           contentType: 'application/json',
-          beforeSend: function(request){
-            request.setRequestHeader('Access-Control-Request-Headers', 'Origin, Accept, Content-Type')
-            request.setRequestHeader('Access-Control-Request-Method', 'POST')
-          },
           data: JSON.stringify({
             text: form.find('textarea').val(),
             now: Date.now()
