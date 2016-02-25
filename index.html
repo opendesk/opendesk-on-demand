@@ -59,7 +59,7 @@
     </div>
   </div>
   <script>
-  $.ajaxSetup({xhrFields: {withCredentials: true}})
+  jQuery.ajaxSetup({xhrFields: {withCredentials: true}})
   function outputUpdate(vol) {
     document.querySelector('#thickness').value = vol + " mm";
   }
@@ -67,15 +67,15 @@
     document.querySelector('#length').value = vol + " mm";
   }
 
-  jquery(document).ready(function () {
+  jQuery(document).ready(function () {
 
-    var form = $('#add-post');
+    var form = jQuery('#add-post');
       form.find('button').click(function (e) {
         e.preventDefault();
         var thickness = form.find('#thickness').val().slice(0, -3)
         var length = form.find('#length').val().slice(0, -3)
         var email = form.find('#user_email').val()
-        $.ajax({
+        jQuery.ajax({
           url: 'https://opendesk-develop.herokuapp.com/api/v1/inventor-on-demand-beta',
           type: 'post',
           contentType: 'application/json',
@@ -85,7 +85,7 @@
             thickness: thickness
           }),
           success: function () {
-            $('#submit-btn').hide()
+            jQuery('#submit-btn').hide()
             alert('You created a job, we will email you a file in the next minutes.')
           },
           error: function () {
