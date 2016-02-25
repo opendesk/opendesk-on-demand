@@ -20,7 +20,7 @@
 <body>
   <div class="container">
     <div class="row">
-      <div class="col-md-6 col-md-offset-3" style="background-color:#F1F1F1;">
+      <div class="col-sm-8 col-md-8" style="background-color:#F1F1F1;">
         <h1 style="text-align:center;padding-top:20px;">Opendesk On Demand</h1>
         <div class="row">
           <a href="https://www.opendesk.cc/lean/desk">
@@ -34,13 +34,13 @@
           <div style="margin-top:40px;" >
             <input id="user_email" type="text" name="email" class="form-control" placeholder="your@email.com">
             <label for="length_fader">Length</label><br>
-            Select the length of the desk(use arrow keys for accuracy):<br><br>
+            Select the length of the desk (use arrow keys for accuracy):<br><br>
             <input type="range" min="1000" max="2400" value="1700" id="length_fader" step="1" oninput="outputUpdate2(value)">
             <output for="length_fader" id="length">2400 mm</output>
             <br><out type="text" name="firstname"><br>
           </div>
 
-          <div >
+          <div style="padding-bottom: 10px">
             <label for="thickness_fader">Thickness</label><br>
             Select the thickness of the material you intend to use:<br><br>
             <input type="range" min="16" max="20" value="18" id="thickness_fader" step="0.1" oninput="outputUpdate(value)">
@@ -67,7 +67,7 @@
     document.querySelector('#length').value = vol + " mm";
   }
 
-  $(document).ready(function () {
+  jquery(document).ready(function () {
 
     var form = $('#add-post');
       form.find('button').click(function (e) {
