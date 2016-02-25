@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Opendesk on demand</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+  <style>
+    #ex1Slider .slider-selection {
+      background: #BABABA;
+    }
+    body {font-family: 'Source Sans Pro', sans-serif;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3" style="background-color:#F1F1F1;">
+        <h1 style="text-align:center;padding-top:20px;">Opendesk On Demand</h1>
+        <div class="row">
+          <a href="https://www.opendesk.cc/lean/desk">
+            <div style="text-align: center;">
+              <img src="https://d2mgbjyendvdw0.cloudfront.net/09209/1196/lean-desk_index_angled-view_ply_2880x1620.lead.jpg" style="width:80%;">
+            </div>
+          </a>
+        </div>
+        <form id="add-post" class="cf">
+
+          <div style="margin-top:40px;" >
+            <label for="length_fader">Length</label><br>
+            Select the length of the desk(use arrow keys for accuracy):<br><br>
+            <input type="range" min="1000" max="2400" value="1700" id="length_fader" step="1" oninput="outputUpdate2(value)">
+            <output for="length_fader" id="length">2400 mm</output>
+            <br><out type="text" name="firstname"><br>
+          </div>
+
+          <div >
+            <label for="thickness_fader">Thickness</label><br>
+            Select the thickness of the material you intend to use:<br><br>
+            <input type="range" min="16" max="20" value="18" id="thickness_fader" step="0.1" oninput="outputUpdate(value)">
+            <output for="thickness_fader" id="thickness">18 mm</output>
+          </div>
+          <div class="row">
+            <div style="margin-top:10px;
+                        margin-bottom:15px;
+                        width:100%;"
+                        class="col-md-offset- col-md-6">
+              <button type="submit" class="btn" style="width:100%;background-color:#F3FFFA;border-radius: 0px">Generate files</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+  function outputUpdate(vol) {
+    document.querySelector('#thickness').value = vol + " mm";
+  }
+  function outputUpdate2(vol) {
+    document.querySelector('#length').value = vol + " mm";
+  }
+
+  $(document).ready(function () {
+
+    var form = $('#add-post');
+      form.find('button').click(function (e) {
+        e.preventDefault();
+        console.log(form.find('#thickness').val().slice(0, -3))
+        console.log(form.find('#length').val().slice(0, -3))
+        $.ajax({
+          url: 'https://opendesk-develop.herokuapp.com/api/v1/inventor-on-demand-beta',
+          type: 'post',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            text: form.find('textarea').val(),
+            now: Date.now()
+          }),
+          success: function () {
+            console.log("XXX");
+          },
+          error: function () {
+            alert('Failed to create a job, email harry@opendesk.cc with details.')
+          }
+
+        });
+      });
+  });
+
+</script>
+
+</body>
+</html>
