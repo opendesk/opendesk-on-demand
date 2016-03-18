@@ -18,9 +18,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-8 col-md-8" style="background-color:#F1F1F1;">
+  <div class="col-xs-12" style="background-color:#F1F1F1;">
         <h1 style="text-align:center;padding-top:20px;">Opendesk On Demand</h1>
         <div class="row">
           <a href="https://www.opendesk.cc/lean/desk">
@@ -32,33 +30,44 @@
         <form id="add-post" class="cf">
 
           <div style="margin-top:40px;" >
-            <input id="user_email" type="text" name="email" class="form-control" placeholder="your@email.com">
+            Enter the email you would like us to send your drawing files to:
+          </div>
+
+          <div style="margin-top:10px;" >
+            <input id="user_email" type="text" name="email" class="form-control" placeholder="your@email.com"><br>
+          </div>
+
+          <div style="margin-top:10px;" >
             <label for="length_fader">Length</label><br>
             Select the length of the desk (use arrow keys for accuracy):<br><br>
             <input type="range" min="1000" max="2400" value="1700" id="length_fader" step="1" oninput="outputUpdate2(value)">
-            <output for="length_fader" id="length">2400 mm</output>
+            <output for="length_fader" id="length" style="color:black; font-size: 18;">1700 mm</output>
             <br><out type="text" name="firstname"><br>
           </div>
 
-          <div style="padding-bottom: 10px">
+          <div style="padding-bottom: 10px;">
             <label for="thickness_fader">Thickness</label><br>
             Select the thickness of the material you intend to use:<br><br>
             <input type="range" min="16" max="20" value="18" id="thickness_fader" step="0.1" oninput="outputUpdate(value)">
-            <output for="thickness_fader" id="thickness">18 mm</output>
+            <output for="thickness_fader" id="thickness" style="color:black; font-size: 18;">18 mm</output>
           </div>
+
           <div class="row">
             <div style="margin-top:10px;
                         margin-bottom:15px;
                         width:100%;"
                         class="col-md-offset- col-md-6">
-              <button id="submit-btn" type="submit" class="btn" style="width:100%;background-color:#F3FFFA;border-radius: 0px">Generate files</button>
+              <button id="submit-btn" type="submit" class="btn" style="width:100%;background-color:#008955;border-radius: 0px; border-color:#008955;">Generate files</button>
             </div>
           </div>
         </form>
+
+        <div style="padding-bottom: 10px">
+        Once you have your files you can get it made on 
+        <a href="www.fabhub.io">FabHub.io</a>
+        </div>
       </div>
-    </div>
-  </div>
-  <script>
+ <script>
   jQuery.ajaxSetup({xhrFields: {withCredentials: true}})
   function outputUpdate(vol) {
     document.querySelector('#thickness').value = vol + " mm";
@@ -76,7 +85,7 @@
         var length = form.find('#length').val().slice(0, -3)
         var email = form.find('#user_email').val()
         jQuery.ajax({
-          url: 'https://opendesk-develop.herokuapp.com/api/v1/inventor-on-demand-beta',
+          url: 'https://opendesk.herokuapp.com/api/v1/inventor-on-demand-beta',
           type: 'post',
           contentType: 'application/json',
           data: JSON.stringify({
@@ -86,10 +95,10 @@
           }),
           success: function () {
             jQuery('#submit-btn').hide()
-            alert('You created a job, we will email you a file in the next minutes.')
+            alert('Job successfully created, we will email you your drawings to you in the next few minutes.')
           },
           error: function () {
-            alert('Failed to create a job, email harry@opendesk.cc with details.')
+            alert('Failed to create a job, check you have entered your email correctly.\n\nOtherwise email harry@opendesk.cc with details.')
           }
 
         });
