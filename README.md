@@ -48,7 +48,7 @@ N.b.: in future, we can also consider writing the transformation functions in Py
 [loaded in browser]: http://threejs.org/examples/webgl_loader_obj.html
 [three.js]: http://threejs.org/
 [#]: http://docs.mcneel.com/rhino/5/help/en-us/fileio/wavefront_obj_import_export.htm
-[see example]: box_height
+[see example]: examples/box_height
 [transformation functions]: src/lib.coffee
 [blender]: https://www.blender.org/manual/
 [controller UI]: src/client.coffee
