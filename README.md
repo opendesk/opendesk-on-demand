@@ -31,7 +31,7 @@ The way we're proposing to do this is as follows:
    - have a `config.json` file (see example) that:
      - exposes a subset of the product options as `parameters`
      - specifies the parameter aware [transformation functions][] to apply to object geometry values by `layers` (i.e.: objects on different layers will have different transformation functions applied)
-3. write a cross-language compiler that:
+3. write a [cross-language compiler][] that:
    - in `Python`:
      - parses the `.obj` and `config.json#layers` data
      - transforms it into a denormalised abstract-syntax-tree where each object node carries a copy of the transformations that should be applied to it (derived from the layers that the object is on)
@@ -52,3 +52,4 @@ N.b.: in future, we can also consider writing the transformation functions in Py
 [transformation functions]: src/lib.coffee
 [blender]: https://www.blender.org/manual/
 [controller UI]: src/client.coffee
+[cross-language compiler]: https://github.com/thejameskyle/the-super-tiny-compiler/blob/master/super-tiny-compiler.js
