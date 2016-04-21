@@ -1,10 +1,13 @@
+import json
+
 FILEPATH = '..\\..\\examples\\box_height\\obj\\box2.obj'
+token = {'type':'type', 'value':'value'}
 
 def tokeniser(obj_input):
 	#take input and put in array of dict tokens
 
 	current = 0
-	token = {'type':'type', 'value':'value'}
+
 	tokens = []
 
 	#print obj_input
@@ -38,7 +41,6 @@ def tokeniser(obj_input):
 			while char in '0123456789./':
 				value_str += char
 				current += 1
-				print current
 				char = obj_input[current]
 
 			token['type'] = 'number'
@@ -61,7 +63,59 @@ def parser(tokens):
 	# Take array of tokens and make it in to an AST
 	current = 0
 
-	token = tokens[current]
+	def walk(current):
+		token = tokens[current]
+
+		#current += 1
+
+		# print 'token =' + str(token)
+
+		if token['type'] == 'number':
+			#print token['type']
+			current += 1
+
+			return {'type': 'Literal', 'value': token['value']}
+
+		# else:
+		# 	return 	token
+
+
+		if token['type'] == 'name' and token['value'] == 'v':
+			token = tokens[current + 1]
+			# print token
+
+			node = {'type': 'Co-Ord', 'name': token['value'], 'params':[]}
+
+			token = tokens[current + 1]
+
+			while token['type'] != 'name':
+				node['params'].append(walk(current))
+				token = tokens[current]
+
+			current += 1
+
+			return node
+
+		else:
+			current += 1
+			return token
+
+
+			#raise TypeError('you dont know what your doing')
+
+
+
+
+	ast = {'type': 'obj', 'body': []}
+
+	while current < len(tokens):
+		current, ast_node = walk(current)
+		ast['body'].append(ast_node)
+
+	return ast
+
+
+
 
 
 def get_obj():
@@ -85,7 +139,14 @@ if __name__ == '__main__':
 
 	tokens = tokeniser(obj_input)
 	
-	for i, a in enumerate(tokens):
-		print tokens[i]
+	# for i, a in enumerate(tokens):
+	# 	print tokens
 
-	parser(tokens)
+	ast = parser(tokens)
+	json_data = json.dumps(ast, sort_keys=True, indent=2, separators=(',',': '))
+
+	# for i, a in enumerate(ast):
+
+	with open('data.txt', 'w') as outfile:
+		outfile.write(str(json_data))
+		
