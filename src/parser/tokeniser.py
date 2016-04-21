@@ -58,7 +58,7 @@ def tokeniser(obj_input):
 	return tokens
 
 def parser(tokens):
-	# Take array of tokens and make it in to an AST - Abstract Syntax Tree
+	# Take array of tokens and make it in to an AST
 	current = 0
 
 	token = tokens[current]
