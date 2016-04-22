@@ -13,8 +13,17 @@
 """
 
 import argparse
+import copy
 import json
 import re
+
+from collections import defaultdict
+
+AXIS = (
+    u'x',
+    u'y',
+    u'z',
+)
 
 MATCH_EXPRESSIONS = {
     'face': re.compile('^vf ', re.U),
@@ -41,8 +50,8 @@ class Parser(object):
                 layer = self.parse_layer(line)
             elif self.expr['vertex'].match(line):
                 item = self.parse_geometry(line, layer, u'vertex')
-            elif self.expr['face'].match(line):
-                item = self.parse_geometry(line, layer, u'face')
+            # elif self.expr['face'].match(line):
+            #     item = self.parse_geometry(line, layer, u'face')
             else:
                 item = self.pass_through(line)
             yield item
@@ -65,9 +74,9 @@ class Parser(object):
             'type': type_,
             'layer': layer,
             'geometry': {
-                'x': parts[1],
-                'y': parts[2],
-                'z': parts[3],
+                'x': float(parts[1]),
+                'y': float(parts[2]),
+                'z': float(parts[3]),
             },
         }
 
@@ -92,10 +101,37 @@ class Denormaliser(object):
         self.config = json.loads(config_file.read())
 
     def __call__(self, gen_items):
-        layers = self.config.get('layers', {})
+        transformations = self.config.get('transformations', {})
         for item in gen_items:
-            if item.has_key('layer'):
-                item['layer'] = layers.get(item['layer'])
+            if item.has_key('geometry'):
+                applicable = defaultdict(dict)
+                for key, transformation in transformations.iteritems():
+                    match = transformation.get('match', {})
+                    bounds = match.get('bounds', {})
+                    layers = match.get('layers', [])
+                    if layers and item.has_key('layer'):
+                        if item.get('layer') not in layers:
+                            continue
+                    if bounds:
+                        matches_bounds = True
+                        geometry = item.get('geometry')
+                        for axis in AXIS:
+                            if bounds.has_key(axis):
+                                min_, max_ = bounds.get(axis)
+                                geom_value = geometry.get(axis)
+                                if geom_value < min_:
+                                    matches_bounds = False
+                                if geom_value > max_:
+                                    matches_bounds = False
+                                if not matches_bounds:
+                                    break
+                        if not matches_bounds:
+                            continue
+                    properties = transformation['properties']
+                    for property_, instruction in properties.iteritems():
+                        applicable[key][property_] = copy.deepcopy(instruction)
+                if applicable:
+                    item['transformations'] = applicable
             yield item
 
 def parse_args():

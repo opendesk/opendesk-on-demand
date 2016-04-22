@@ -10,11 +10,21 @@
       "initial_value": 80
     }
   },
-  "layers": {
-    "default": {
-      "z": {
-        "use": "add",
-        "args": ["@", "$height"]
+  "transformations": {
+    "extend_tops": {
+      "match": {
+        "layers": ["default", "special"],
+        "bounds": {
+          "x": [5, 50],
+          "y": [5, 50],
+          "z": [5, 50]
+        }
+      },
+      "properties": {
+        "z": {
+          "use": "add",
+          "args": ["@", "$height"]
+        }
       }
     }
   }
