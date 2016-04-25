@@ -2,14 +2,13 @@
 # Opendesk On Demand
 
 This repository contains code and experiments relating to parameterised
-configuration and in-browser customisation of Opendesk products. There are two distinct areas of experimentation:
+configuration and in-browser customisation of Opendesk products.
 
-* in-browser customisation
-* automated cutting file generation
+## Demo
 
-The subsequent documentation focuses on the former.
+Clone the repo, `cd` into the folder, run e.g.: `python -m SimpleHTTPServer` and open your browser at [localhost:8000/demo/index.html](http://localhost:8000/demo/index.html). Play with the controls to see the model adapt. When ready, save and check the console output.
 
-## In-browser customisation
+## How it Works
 
 Opendesk products are described using the [winnow][] data format. We use winnow:
 
