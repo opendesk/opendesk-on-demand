@@ -15,8 +15,8 @@ define 'opendesk.on_demand.client', (exports) ->
 
         validate: (attrs, options) ->
             for key of @defaults
-                if not attrs[key]
-                    return "#{ key } is required."
+                if not attrs[key]?
+                    return "The model must have `#{ key }`."
 
     # Hipster views have mustache templates.
     class HipsterView extends Backbone.View
@@ -106,7 +106,8 @@ define 'opendesk.on_demand.client', (exports) ->
     # Entry point -- call `main` with initial model, config and parameter
     # `data` to setup the client application.
     main = (data) ->
-        model = new Backbone.Model
+        model = new Model
+        model.on 'invalid', (m, error) -> throw error
         generator = new CodeGenerator model
         controls = new ControlsView el: 'controls', model: model
         model.set data, validate: true
