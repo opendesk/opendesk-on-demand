@@ -12,14 +12,30 @@
     <script src="/vendor/backbone.js"></script>
     <script src="/vendor/handlebars.js"></script>
   </head>
-  <body>
+  <body style="padding: 1em 0">
     <div class="container">
-      <div class="col-sm-8">
-        <div id="viewer">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Controls
+            </div>
+            <div class="panel-body">
+              <div id="controls">
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-sm-4">
-        <div id="controls">
+        <div class="col-sm-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Viewer
+            </div>
+            <div class="panel-body">
+              <div id="viewer">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

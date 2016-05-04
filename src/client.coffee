@@ -23,15 +23,19 @@ define 'opendesk.on_demand.client', (exports) ->
     # inputs change through user input.
     class ControlsView extends Backbone.View
         template: Handlebars.compile """
-            <div class="panel">
-              <ul>
-                {{#each parameters}}
-                  <li>
-                    {{ @key }}: {{ this }}
-                  </li>
-                {{/each}}
-              </ul>
-            </div>
+            <form class="form">
+              {{#each parameters}}
+                <div class="form-group">
+                  <label for="{{ @key }}">
+                    {{ @key }}:&nbsp;
+                  </label>
+                  <input type="number"
+                      name="{{ @key }}"
+                      value="{{ this.initial_value }}"
+                  />
+                </div>
+              {{/each}}
+            </form>
         """
 
         value_types:
