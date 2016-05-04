@@ -18,22 +18,18 @@ define 'opendesk.on_demand.client', (exports) ->
                 if not attrs[key]?
                     return "The model must have `#{ key }`."
 
-    # Hipster views have mustache templates.
-    class HipsterView extends Backbone.View
-        template: Mustache.to_html
-
     # The `Controls` view renders a form with inputs for each parameter
     # and atomically updates the choice doc when the value of any of those
     # inputs change through user input.
-    class ControlsView extends HipsterView
-        tmpl: """
+    class ControlsView extends Backbone.View
+        template: Handlebars.compile """
             <div class="panel">
               <ul>
-                {{ #parameters }}
+                {{#each parameters}}
                   <li>
                     {{ @key }}: {{ this }}
                   </li>
-                {{ /parameters }}
+                {{/each}}
               </ul>
             </div>
         """
@@ -47,7 +43,7 @@ define 'opendesk.on_demand.client', (exports) ->
             @listenToOnce @model, 'change:parameters', @render
 
         render: ->
-            @$el.html @template @tmpl, @model.attributes
+            @$el.html @template @model.attributes
             @$form = @$el.find 'form'
             @$inputs = @$form.find 'input, select'
             @$inputs.on 'change', @set_choice_doc
@@ -109,7 +105,7 @@ define 'opendesk.on_demand.client', (exports) ->
         model = new Model
         model.on 'invalid', (m, error) -> throw error
         generator = new CodeGenerator model
-        controls = new ControlsView el: 'controls', model: model
+        controls = new ControlsView el: '#controls', model: model
         model
 
     # Bootstrap the initial model data.
