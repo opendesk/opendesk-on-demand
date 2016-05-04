@@ -78,8 +78,9 @@ define 'opendesk.on_demand.client', (exports) ->
                 return TYPES[type_]
             throw "Unknown value type: `#{ type_ }`."
 
-        set_choice_doc: (args...) ->
-            choice_doc = _.copy @model.get 'choice_doc'
+        set_choice_doc: (args...) =>
+            choice_doc = _.clone @model.get 'choice_doc'
+            choice_doc ?= {}
             for name, parameter of @model.get 'parameters'
                 value = @get_input_value name
                 # XXX dont need to deduce type *here* if we've rendered the
