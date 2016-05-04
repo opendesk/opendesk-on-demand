@@ -1,10 +1,8 @@
 define 'opendesk.on_demand.client', (exports) ->
 
-    if not 's'.hasProperty 'startsWith'
-        String::startsWith = (s) -> @indexOf(s) is 0
-        String::endsWith = (s) -> -1 isnt @indexOf s, @length - s.length
-    if not 's'.hasProperty 'contains'
-        String::contains = (s) -> @indexOf(s) > -1
+    String::startsWith = (s) -> @indexOf(s) is 0
+    String::endsWith = (s) -> -1 isnt @indexOf s, @length - s.length
+    String::contains = (s) -> @indexOf(s) > -1
 
     # We define a single `Model` class with a set of required attributes.
     class Model extends Backbone.Model
@@ -27,7 +25,7 @@ define 'opendesk.on_demand.client', (exports) ->
     # The `Controls` view renders a form with inputs for each parameter
     # and atomically updates the choice doc when the value of any of those
     # inputs change through user input.
-    class Controls extends HipsterView
+    class ControlsView extends HipsterView
         tmpl: """
             <div class="panel">
               <ul>
@@ -59,6 +57,7 @@ define 'opendesk.on_demand.client', (exports) ->
 
         get_value_type: (param) ->
             TYPES = @value_types
+            ###
             if _.isObject param and if 'type' of param
                 type_ = param.type_.replace('set::', '')
                 if type_.startsWith 'numeric'
@@ -68,6 +67,8 @@ define 'opendesk.on_demand.client', (exports) ->
                 if type_.contains 'boolean'
                     return TYPES.boolean
                 throw "Unknown object type: `#{ type_ }`."
+            ###
+
             value = param
             if _.isArray value
                 value = value[0]
@@ -90,6 +91,7 @@ define 'opendesk.on_demand.client', (exports) ->
     # code from the `obj_as_ast` node list and the current parameter values.
     class CodeGenerator
         constructor: (@model) ->
+            _.extend this, Backbone.Events
             @listenTo @model, 'change:choice_doc', @generate
 
         generate: ->
@@ -104,9 +106,9 @@ define 'opendesk.on_demand.client', (exports) ->
     # Entry point -- call `main` with initial model, config and parameter
     # `data` to setup the client application.
     main = (data) ->
-          model = new Backbone.Model
-          generator = new CodeGenerator model
-          controls = new ControlsView el: 'controls', model: model
-          model.set data, validate: true
+        model = new Backbone.Model
+        generator = new CodeGenerator model
+        controls = new ControlsView el: 'controls', model: model
+        model.set data, validate: true
 
     exports.main = main

@@ -8,17 +8,18 @@
     <link rel="stylesheet" href="/vendor/bootstrap.min.css" />
     <script src="/vendor/jquery.js"></script>
     <script src="/vendor/bootstrap.js"></script>
-    <script src="/vendor/coffeescript.js"></script>
     <script src="/vendor/underscore.js"></script>
     <script src="/vendor/backbone.js"></script>
     <script src="/vendor/mustache.js"></script>
   </head>
   <body>
-    <script type="text/coffeescript"
-        src="/src/lib.coffee">
-    </script>
-    <script type="text/coffeescript"
-        src="/src/client.coffee">
+    <script src="/.build/namespace.js"></script>
+    <script src="/.build/lib.js"></script>
+    <script src="/.build/client.js"></script>
+    <script>
+      opendesk.on_demand.client.main({
+        // ...
+      });
     </script>
   </body>
 </html>
