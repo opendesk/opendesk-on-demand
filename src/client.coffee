@@ -8,10 +8,10 @@ define 'opendesk.on_demand.client', (exports) ->
     class Model extends Backbone.Model
         defaults:
             parameters: null
-            initial_choice_doc: null
-            choice_doc: null
             obj_as_ast: null
-            obj_string: null
+            # choice_doc
+            # initial_choice_doc
+            # obj_string
 
         validate: (attrs, options) ->
             for key of @defaults
@@ -48,6 +48,7 @@ define 'opendesk.on_demand.client', (exports) ->
 
         render: ->
             @$el.html @template @tmpl, @model.attributes
+            @$form = @$el.find 'form'
             @$inputs = @$form.find 'input, select'
             @$inputs.on 'change', @set_choice_doc
 
@@ -103,13 +104,33 @@ define 'opendesk.on_demand.client', (exports) ->
 
             @model.set 'obj_string', obj_string
 
-    # Entry point -- call `main` with initial model, config and parameter
-    # `data` to setup the client application.
-    main = (data) ->
+    # Create the model and components.
+    factory = () ->
         model = new Model
         model.on 'invalid', (m, error) -> throw error
         generator = new CodeGenerator model
         controls = new ControlsView el: 'controls', model: model
-        model.set data, validate: true
+        model
+
+    # Bootstrap the initial model data.
+    bootstrap = (model, options) ->
+        data = {}
+        num_performed = 0
+        num_requests = 2
+        $.getJSON options.config_path, (config) ->
+            data.parameters = config.parameters
+            num_performed += 1
+            complete()
+        $.getJSON options.obj_path, (obj) ->
+            data.obj_as_ast = obj.data
+            num_performed += 1
+            complete()
+        complete = () ->
+            if num_performed is num_requests
+                model.set data, validate: true
+
+    # Entry point -- call `main` to setup the client application.
+    main = (options) ->
+        bootstrap factory(), options
 
     exports.main = main
