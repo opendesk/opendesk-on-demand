@@ -53,23 +53,18 @@ define 'opendesk.on_demand.client', (exports) ->
             @$inputs.on 'change', @set_choice_doc
 
         get_input_value: (name) ->
-            $input = @$inputs.filter "[attribute='#{ name }']"
-            $input.val()
+            $input = @$inputs.filter "[name='#{ name }']"
+            type_ = $input.attr 'type'
+            value = $input.val()
+            if type_ is 'number'
+                value = parseInt value
+            else
+                throw "Handle input types: `#{ type_ }`."
+            value
 
+        ###
         get_value_type: (param) ->
             TYPES = @value_types
-            ###
-            if _.isObject param and if 'type' of param
-                type_ = param.type_.replace('set::', '')
-                if type_.startsWith 'numeric'
-                    return TYPES.number
-                if type_.contains 'string'
-                    return TYPES.string
-                if type_.contains 'boolean'
-                    return TYPES.boolean
-                throw "Unknown object type: `#{ type_ }`."
-            ###
-
             value = param
             if _.isArray value
                 value = value[0]
@@ -77,14 +72,15 @@ define 'opendesk.on_demand.client', (exports) ->
             if type_ of TYPES
                 return TYPES[type_]
             throw "Unknown value type: `#{ type_ }`."
+        ###
 
         set_choice_doc: (args...) =>
             choice_doc = _.clone @model.get 'choice_doc'
             choice_doc ?= {}
             for name, parameter of @model.get 'parameters'
                 value = @get_input_value name
-                # XXX dont need to deduce type *here* if we've rendered the
-                # right inputs in the template?
+                # XXX dont need to deduce type here if we've rendered the
+                # right inputs in the template.
                 # type_ = @get_value_type parameter
                 choice_doc[name] = value
             @model.set 'choice_doc', choice_doc
@@ -101,6 +97,9 @@ define 'opendesk.on_demand.client', (exports) ->
             choice_doc = @model.get 'choice_doc'
 
             # obj_string = ...
+            console.log 'obj_as_ast', obj_as_ast
+            console.log 'choice_doc', choice_doc
+
             throw 'NotImplemented: do actual code generation.'
 
             @model.set 'obj_string', obj_string
