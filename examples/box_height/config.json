@@ -4,7 +4,7 @@
       "units": "mm",
       "value": {
         "type": "numeric::range",
-        "max": 100,
+        "max": 200,
         "min": 10
       },
       "initial_value": 80

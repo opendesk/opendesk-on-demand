@@ -26,12 +26,30 @@ define 'opendesk.on_demand.client', (exports) ->
             <form class="form">
               {{#each parameters}}
                 <div class="form-group">
-                  <label for="{{ @key }}">
-                    {{ @key }}:&nbsp;
+                  <label for="{{@key}}">
+                    {{@key}}:
+                    {{#if (lookup ../choice_doc @key)}}
+                      {{ lookup ../choice_doc @key }}
+                    {{else}}
+                      {{ this.initial_value }}
+                    {{/if}}
+                    {{#if this.units}}
+                      {{ this.units }}
+                    {{/if}}
                   </label>
-                  <input type="number"
-                      name="{{ @key }}"
-                      value="{{ this.initial_value }}"
+                  <input type="range"
+                      name="{{@key}}"
+                      {{#if (lookup ../choice_doc @key)}}
+                        value="{{ lookup ../choice_doc @key }}"
+                      {{else}}
+                        value="{{ this.initial_value }}"
+                      {{/if}}
+                      {{#if this.value.min}}
+                        min="{{ this.value.min }}"
+                      {{/if}}
+                      {{#if this.value.max}}
+                        max="{{ this.value.max }}"
+                      {{/if}}
                   />
                 </div>
               {{/each}}
@@ -45,21 +63,24 @@ define 'opendesk.on_demand.client', (exports) ->
 
         initialize: ->
             @listenToOnce @model, 'change:parameters', @render
+            @listenTo @model, 'change:choice_doc', @render
 
         render: ->
             @$el.html @template @model.attributes
             @$form = @$el.find 'form'
             @$inputs = @$form.find 'input, select'
             @$inputs.on 'change', @set_choice_doc
+            @set_choice_doc()
 
         get_input_value: (name) ->
             $input = @$inputs.filter "[name='#{ name }']"
-            type_ = $input.attr 'type'
             value = $input.val()
-            if type_ is 'number'
-                value = parseInt value
-            else
-                throw "Handle input types: `#{ type_ }`."
+            type_ = $input.attr 'type'
+            switch type_
+                when 'number', 'range'
+                    value = parseInt value
+                else
+                    throw "Handle input types: `#{ type_ }`."
             value
 
         ###
@@ -127,7 +148,10 @@ define 'opendesk.on_demand.client', (exports) ->
     # The `WebGLViewer` updates the in-browser view of the object whenever
     # the generated `obj_string` code changes.
     class WebGLViewer extends Backbone.View
+        defaults: {}
+
         initialize: ->
+            @options = _.defaults @options, @defaults
             # Setup renderer.
             renderer_opts =
                 alpha: 1
@@ -144,8 +168,8 @@ define 'opendesk.on_demand.client', (exports) ->
                 dims.width / 2    # right
                 dims.height / 2   # top
                 dims.width / -2   # bottom
-                -100              # near
-                100               # far
+                -1000             # near
+                1000              # far
             ]
             @camera = new THREE.OrthographicCamera camera_args...
             @camera.position.x = 2;
