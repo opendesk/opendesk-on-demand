@@ -93,16 +93,106 @@ define 'opendesk.on_demand.client', (exports) ->
             @listenTo @model, 'change:choice_doc', @generate
 
         generate: ->
-            obj_as_ast = @model.get 'obj_as_ast'
-            choice_doc = @model.get 'choice_doc'
-
-            # obj_string = ...
-            console.log 'obj_as_ast', obj_as_ast
-            console.log 'choice_doc', choice_doc
-
-            throw 'NotImplemented: do actual code generation.'
-
+            ast = @model.get 'obj_as_ast'
+            lines = _.map ast, @line
+            obj_string = lines.join '\n'
             @model.set 'obj_string', obj_string
+
+        line: (node, index, ast) =>
+            params = @model.get 'parameters'
+            choices = @model.get 'choice_doc'
+            switch node.type
+                when 'pass'
+                    line = node.line
+                when 'vertex'
+                    geom = _.clone node.geometry
+                    ts = node.transformations
+                    _.each ts, (t) ->
+                        _.each t, (sig, key) ->
+                            geom_value = geom[key]
+                            lib_func = opendesk.on_demand.lib[sig.use]
+                            throw "No `geom.#{ geom[key] }`." if not geom_value?
+                            throw "No `lib.#{ sig.use }`." if not lib_func?
+                            args = _.map sig.args, (a) ->
+                                switch
+                                    when a is '@' then geom_value
+                                    when a.startsWith '$' then a.slice 1
+                                    else a
+                            geom[key] = lib_func params, choices, args...
+                    line = "v #{ geom.x } #{ geom.y } #{ geom.z }"
+                else
+                    throw "#{ node.type }"
+            line
+
+    # The `WebGLViewer` updates the in-browser view of the object whenever
+    # the generated `obj_string` code changes.
+    class WebGLViewer extends Backbone.View
+        initialize: ->
+            # Setup renderer.
+            renderer_opts =
+                alpha: 1
+                antialias: true
+                clearColor: 0xffffff
+            dims = @dims()
+            @renderer = new THREE.WebGLRenderer renderer_opts
+            @renderer.setSize dims.width, dims.height
+            renderer_el = @renderer.domElement
+            @$el.append renderer_el
+            # Setup camera.
+            camera_args = [
+                dims.width / -2   # left
+                dims.width / 2    # right
+                dims.height / 2   # top
+                dims.width / -2   # bottom
+                -100              # near
+                100               # far
+            ]
+            @camera = new THREE.OrthographicCamera camera_args...
+            @camera.position.x = 2;
+            @camera.position.y = 2;
+            @camera.position.z = 2;
+            @camera.fov = 1;
+            # Setup controls.
+            @controls = new THREE.OrbitControls @camera, renderer_el
+            @controls.minPolarAngle = -Infinity;
+            @controls.maxPolarAngle = Infinity;
+            @controls.minAzimuthAngle = -Infinity;
+            @controls.maxAzimuthAngle = Infinity;
+            # Setup scene.
+            axisHelper = new THREE.AxisHelper 50
+            @scene = new THREE.Scene
+            @scene.add axisHelper
+            # And material.
+            material_opts =
+                color: 0x99CC99
+                linewidth: 2
+            @material = new THREE.LineBasicMaterial material_opts
+            # Update when the object changes.
+            @listenTo @model, 'change:obj_string', @render
+
+        dims: ->
+            width: @$el.width()
+            height: $(window).height() * 0.8
+
+        render: (model, obj_string) =>
+            if @object?
+                @scene.remove @object
+            for child in @scene.children
+                @scene.remove child
+            loader = new THREE.OBJLoader
+            @object = loader.parse obj_string
+            @object.traverse (child) =>
+                if child instanceof THREE.Mesh
+                    child.material = @material
+                    edges_helper = new THREE.EdgesHelper child, 0x000000
+                    @scene.add edges_helper
+            @scene.add @object
+
+        animate: =>
+            if @object?
+                @controls.update()
+                @renderer.render @scene, @camera
+            window.requestAnimationFrame @animate
 
     # Create the model and components.
     factory = () ->
@@ -110,6 +200,8 @@ define 'opendesk.on_demand.client', (exports) ->
         model.on 'invalid', (m, error) -> throw error
         generator = new CodeGenerator model
         controls = new ControlsView el: '#controls', model: model
+        viewer = new WebGLViewer el: '#viewer', model: model
+        viewer.animate()
         model
 
     # Bootstrap the initial model data.
