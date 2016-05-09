@@ -5,9 +5,9 @@
       "value": {
         "type": "numeric::range",
         "max": 2400,
-        "min": 0
+        "min": 1000
       },
-      "initial_value": 40
+      "initial_value": 1400
     }
   },
   "transformations": {
