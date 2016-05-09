@@ -1,0 +1,31 @@
+{
+  "parameters": {
+    "height": {
+      "units": "mm",
+      "value": {
+        "type": "numeric::range",
+        "max": 2400,
+        "min": 0
+      },
+      "initial_value": 40
+    }
+  },
+  "transformations": {
+    "extend_tops": {
+      "match": {
+        "layers": ["default", "special"],
+        "bounds": {
+          "x": [-5000, 5000],
+          "y": [-5000, 5000],
+          "z": [ 0, 5000]
+        }
+      },
+      "properties": {
+        "z": {
+          "use": "add",
+          "args": ["@", "$height"]
+        }
+      }
+    }
+  }
+}
