@@ -1,0 +1,26 @@
+{
+  "parameters": {
+    "height": {
+      "units": "mm",
+      "value": {
+        "type": "numeric::range",
+        "max": 1280,
+        "min": 1000
+      },
+      "initial_value": 1120
+    }
+  },
+  "transformations": {
+    "extend_tops": {
+      "match": {
+        "layers": ["default", "special"]
+      },
+      "properties": {
+        "z": {
+          "use": "add",
+          "args": ["@", "$height"]
+        }
+      }
+    }
+  }
+}
