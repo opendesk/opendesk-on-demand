@@ -167,6 +167,7 @@ define 'opendesk.on_demand.client', (exports) ->
     # the generated `obj_string` code changes.
     class WebGLViewer extends Backbone.View
         defaults: {}
+        throttle: 1
 
         initialize: ->
             @options = _.defaults @options, @defaults
@@ -236,8 +237,12 @@ define 'opendesk.on_demand.client', (exports) ->
 
         animate: =>
             if @object?
-                @controls.update()
-                @renderer.render @scene, @camera
+                @throttle = @throttle - 1
+                if @throttle is 0
+                    # XXX dont seem to seen this controls update call
+                    # @controls.update()
+                    @renderer.render @scene, @camera
+                    @throttle = 5
             window.requestAnimationFrame @animate
 
     # Create the model and components.
