@@ -18,7 +18,7 @@ define 'opendesk.on_demand.client', (exports) ->
                 if not attrs[key]?
                     return "The model must have `#{ key }`."
 
-    # The `Controls` view renders a form with inputs for each parameter
+    # The `ControlsView` renders a form with inputs for each parameter
     # and atomically updates the choice doc when the value of any of those
     # inputs change through user input.
     class ControlsView extends Backbone.View
@@ -105,6 +105,28 @@ define 'opendesk.on_demand.client', (exports) ->
                 # type_ = @get_value_type parameter
                 choice_doc[name] = value
             @model.set 'choice_doc', choice_doc
+
+    # The `ChoiceDocView` view shows the current choice document that
+    # would be merged into the product options.
+    class ChoiceDocView extends Backbone.View
+        template: Handlebars.compile """
+            <pre><code class="json">{{ doc }}</code></pre>
+        """
+
+        initialize: ->
+            @listenTo @model, 'change:choice_doc', @render
+
+        format: (choices) ->
+            type: 'choice_document'
+            schema: 'https://opendesk.cc/schemata/options.json'
+            options: choices
+
+        render: ->
+            choice_doc = @format @model.get 'choice_doc'
+            tmpl_vars = doc: JSON.stringify choice_doc, null, 2
+            @$el.html @template tmpl_vars
+            $code = @$el.find 'pre code'
+            window.hljs.highlightBlock $code.get 0
 
     # The `CodeGenerator` contains the core business logic to generate `.obj`
     # code from the `obj_as_ast` node list and the current parameter values.
@@ -224,6 +246,7 @@ define 'opendesk.on_demand.client', (exports) ->
         model.on 'invalid', (m, error) -> throw error
         generator = new CodeGenerator model
         controls = new ControlsView el: '#controls', model: model
+        choices = new ChoiceDocView el: '#choices', model: model
         viewer = new WebGLViewer el: '#viewer', model: model
         viewer.animate()
         model
