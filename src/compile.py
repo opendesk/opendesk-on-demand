@@ -32,6 +32,13 @@ MATCH_EXPRESSIONS = {
     'vertex': re.compile('^v ', re.U),
 }
 
+def gen_lines(obj_file):
+    text = obj_file.read().replace('\\\n ', '')
+    for line in text.split('\n'):
+        line = line.strip()
+        if line:
+            yield line
+
 class Parser(object):
     """Given a ``.obj`` file parse it into a flat abstract syntax tree.
 
@@ -39,13 +46,12 @@ class Parser(object):
     """
 
     def __init__(self, obj_file, **kwargs):
-        self.lines = obj_file.readlines()
+        self.lines = gen_lines(obj_file)
         self.expr = MATCH_EXPRESSIONS
 
     def __call__(self):
         layer = None
-        for raw_line in self.lines:
-            line = raw_line.strip()
+        for line in self.lines:
             if self.expr['layer'].match(line):
                 layer = self.parse_layer(line)
             elif self.expr['vertex'].match(line):
