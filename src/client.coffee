@@ -95,27 +95,11 @@ define 'opendesk.on_demand.client', (exports) ->
                     throw "Handle input types: `#{ type_ }`."
             value
 
-        ###
-        get_value_type: (param) ->
-            TYPES = @value_types
-            value = param
-            if _.isArray value
-                value = value[0]
-            type_ = typeof value
-            if type_ of TYPES
-                return TYPES[type_]
-            throw "Unknown value type: `#{ type_ }`."
-        ###
-
         set_choice_doc: (args...) =>
             choice_doc = _.clone @model.get 'choice_doc'
             choice_doc ?= {}
             for name, parameter of @model.get 'parameters'
-                value = @get_input_value name
-                # XXX dont need to deduce type here if we've rendered the
-                # right inputs in the template.
-                # type_ = @get_value_type parameter
-                choice_doc[name] = value
+                choice_doc[name] = @get_input_value name
             @model.set 'choice_doc', choice_doc
 
     # The `ChoiceDocView` view shows the current choice document that
