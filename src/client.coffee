@@ -4,6 +4,18 @@ define 'opendesk.on_demand.client', (exports) ->
     String::endsWith = (s) -> -1 isnt @indexOf s, @length - s.length
     String::contains = (s) -> @indexOf(s) > -1
 
+    ###*
+    # Get the value of a querystring
+    # @param  {String} field The field to get the value of
+    # @param  {String} url   The URL to get the value from (optional)
+    # @return {String}       The field value
+    ###
+    window.getQueryString = (field, url) ->
+        href = if url then url else window.location.href
+        reg = new RegExp '[?&]' + field + '=([^&#]*)', 'i'
+        string = reg.exec href
+        if string then string[1] else null
+
     # We define a single `Model` class with a set of required attributes.
     class Model extends Backbone.Model
         defaults:

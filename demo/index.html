@@ -58,10 +58,16 @@
     <script src="/.build/lib.js"></script>
     <script src="/.build/client.js"></script>
     <script>
-      opendesk.on_demand.client.main({
-          'config_path': '/examples/box_height/config.json',
-          'obj_path': '/examples/box_height/obj.json',
-      });
+      (function () {
+        var example = window.getQueryString('example');
+        if (!example) {
+          example = 'box_height';
+        }
+        opendesk.on_demand.client.main({
+          'config_path': '/examples/' + example + '/config.json',
+          'obj_path': '/examples/' + example + '/obj.json'
+        });
+      })();
     </script>
   </body>
 </html>
