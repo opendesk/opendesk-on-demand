@@ -14,6 +14,7 @@
 
 import argparse
 import copy
+import fnmatch
 import json
 import re
 
@@ -116,7 +117,11 @@ class Denormaliser(object):
                     bounds = match.get('bounds', {})
                     layers = match.get('layers', [])
                     if layers and item.has_key('layer'):
-                        if item.get('layer') not in layers:
+                        layer = item.get('layer')
+                        matches = False
+                        for pattern in layers:
+                            matches = fnmatch.fnmatchcase(layer, pattern)
+                        if not matches:
                             continue
                     if bounds:
                         matches_bounds = True

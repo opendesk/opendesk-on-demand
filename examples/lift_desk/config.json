@@ -13,12 +13,7 @@
   "transformations": {
     "extend_tops": {
       "match": {
-        "layers": ["default", "special"],
-        "bounds": {
-          "x": [-5000, 5000],
-          "y": [-5000, 5000],
-          "z": [ 0, 5000]
-        }
+        "layers": ["*bject*"]
       },
       "properties": {
         "z": {
