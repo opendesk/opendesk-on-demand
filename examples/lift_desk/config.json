@@ -11,16 +11,38 @@
     }
   },
   "transformations": {
-    "extend_tops": {
+    "extend_tops_pos": {
       "match": {
-        "layers": ["*bject*"]
+        "layers": ["*bject*"],
+        "bounds": {
+          "x": [-5000, 5000],
+          "y": [-5000, 5000],
+          "z": [ 0, 5000]
+        }
       },
       "properties": {
         "z": {
           "use": "add",
-          "args": ["@", "$height"]
+          "args": ["@", "$height", "0.5"]
+        }
+      }
+    },
+    "extend_tops_neg": {
+      "match": {
+        "layers": ["*bject*"],
+        "bounds": {
+          "x": [-5000, 5000],
+          "y": [-5000, 5000],
+          "z": [ -5000, -1]
+        }
+      },
+      "properties": {
+        "z": {
+          "use": "add",
+          "args": ["@", "$height", "0.5"]
         }
       }
     }
   }
 }
+
