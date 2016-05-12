@@ -154,9 +154,12 @@ define 'opendesk.on_demand.client', (exports) ->
                             throw "No `lib.#{ sig.use }`." if not lib_func?
                             args = _.map sig.args, (a) ->
                                 switch
-                                    when a is '@' geom_value
-                                    when _.isString(a) and a.startsWith '$' a.slice 1
-                                    else a
+                                    when a is '@'
+                                        geom_value
+                                    when _.isString(a) and a.startsWith '$'
+                                        a.slice 1
+                                    else
+                                        a
                             geom[key] = lib_func params, choices, args...
                     line = "v #{ geom.x } #{ geom.y } #{ geom.z }"
                 else
