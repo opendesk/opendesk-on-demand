@@ -8,6 +8,10 @@ define 'opendesk.on_demand.lib', (exports) ->
     if initial_geometry_value is 0
         return 0
 
+    # Default factor to 0.5.
+    if not factor?
+        factor = 0.5
+
     # Get the difference in the parameter value.
     initial = params[param_name].initial_value
     current = choices[param_name]
