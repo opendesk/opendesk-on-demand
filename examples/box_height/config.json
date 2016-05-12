@@ -13,7 +13,7 @@
   "transformations": {
     "extend_tops": {
       "match": {
-        "layers": ["default", "special"],
+        "layers": ["*"],
         "bounds": {
           "x": [5, 50],
           "y": [5, 50],

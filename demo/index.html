@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/vendor/bootstrap.min.css" />
     <link rel="stylesheet" href="/vendor/highlight.css" />
     <script src="/vendor/jquery.js"></script>
+    <!--script src="/vendor/bootstrap.js"></script-->
     <script src="/vendor/underscore.js"></script>
     <script src="/vendor/backbone.js"></script>
     <script src="/vendor/handlebars.js"></script>
@@ -31,15 +32,15 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li>
+              <li data-active-when-example="desk_length">
                 <a href="/demo/index.html?example=desk_length">
                   Desk</a>
               </li>
-              <li>
+              <li data-active-when-example="lift_desk">
                 <a href="/demo/index.html?example=lift_desk">
                   Lift</a>
               </li>
-              <li>
+              <li data-active-when-example="box_height">
                 <a href="/demo/index.html?example=box_height">
                   Box</a>
               </li>
@@ -47,26 +48,57 @@
           </div>
         </div>
       </nav>
-      <div class="jumbotron">
-        <h2>
-          Opendesk On Demand
-        </h2>
-        <p>
-          These demos illustrate in-browser customisation that's integrated with
-          the Opendesk design publishing and distributed manufacturing flow.
-          For technical information see the
-          <a href="https://github.com/opendesk/opendesk-on-demand/blob/master/README.md">
-            README</a>
-          and
-          <a href="https://opendesk.github.io/winnow">
-            Winnow documentation</a>.
-        </p>
-        <p>
-          <a class="btn btn-lg btn-primary"
-              href="/demo/index.html?example=desk_length" role="button">
-            View desk example »</a>
-        </p>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Controls
+            </div>
+            <div class="panel-body">
+              <div id="controls">
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Winnow Choice Doc
+              (<a href="http://opendesk.github.io/winnow/">#</a>)
+            </div>
+            <div class="panel-body">
+              <div id="choices">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Viewer
+            </div>
+            <div class="panel-body">
+              <div id="viewer">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+    <script src="/.build/namespace.js"></script>
+    <script src="/.build/lib.js"></script>
+    <script src="/.build/client.js"></script>
+    <script>
+      (function () {
+        var example = window.getQueryString('example');
+        if (!example) {
+          example = 'box_height';
+        }
+        opendesk.on_demand.client.main({
+          'config_path': '/examples/' + example + '/config.json',
+          'obj_path': '/examples/' + example + '/obj.json'
+        });
+        var $li = $('*[data-active-when-example="' + example + '"]');
+        $li.addClass('active');
+      })();
+    </script>
   </body>
 </html>

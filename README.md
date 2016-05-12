@@ -4,6 +4,8 @@
 This repository contains code and experiments relating to parameterised
 configuration and in-browser customisation of Opendesk products.
 
+You can view the published demos at https://opendesk-on-demand.firebaseapp.com/
+
 ## Demo
 
 Clone the repo, `cd` into the folder, run e.g.: `python -m SimpleHTTPServer` and open your browser at [localhost:8000/demo/index.html](http://localhost:8000/demo/index.html). Play with the controls to see the model adapt. When ready, save and check the console output.

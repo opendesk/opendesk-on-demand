@@ -1,0 +1,13 @@
+{
+  "firebase": "opendesk-on-demand",
+  "public": ".",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**",
+    "src",
+    "Procfile",
+    "READM*",
+    "UNLICENSE"
+  ]
+}
