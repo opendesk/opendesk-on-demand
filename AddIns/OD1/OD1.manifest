@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"b301cfc9-eaef-4517-8c54-f62fe3b57c44",
+	"author":	"",
+	"description":	{
+		"":	"First pass .obj and params export plugin.\t\t"
+	},
+	"version":	"",
+	"runOnStartup":	true,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
