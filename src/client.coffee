@@ -161,7 +161,7 @@ define 'opendesk.on_demand.client', (exports) ->
                                     else
                                         a
                             geom[key] = lib_func params, choices, args...
-                    line = "v #{ geom.x } #{ geom.y } #{ geom.z }"
+                    line = "vertex   #{ geom.x } #{ geom.y } #{ geom.z }"
                 else
                     throw "#{ node.type }"
             line
@@ -221,25 +221,28 @@ define 'opendesk.on_demand.client', (exports) ->
             height: $(window).height() * 0.8
 
         render: (model, obj_string) =>
-            if @object?
-                @scene.remove @object
+            if @mesh?
+                @scene.remove @mesh
             if @edges?
                 @scene.remove edge for edge in @edges
             else
                 @edges = []
             @scene.remove child for child in @scene.children.reverse()
-            loader = new THREE.OBJLoader
-            @object = loader.parse obj_string
-            @object.traverse (child) =>
-                if child instanceof THREE.Mesh
-                    child.material = @material
-                    edges_helper = new THREE.EdgesHelper child, 0x000000
-                    @scene.add edges_helper
-                    @edges.push edges_helper
-            @scene.add @object
+            loader = new THREE.STLLoader
+            @geometry = loader.parse obj_string
+            @mesh = new THREE.Mesh @geometry, @material
+            @mesh.position.set 0, -0.25, 0.6
+            @mesh.rotation.set 0, -Math.PI/2, 0
+            @mesh.scale.set 0.2, 0.2, 0.2
+            @mesh.castShadow = true
+            @mesh.receiveShadow = true
+            edges_helper = new THREE.EdgesHelper @mesh, 0x000000
+            @scene.add @mesh
+            @scene.add edges_helper
+            @edges.push edges_helper
 
         animate: =>
-            if @object?
+            if @mesh?
                 @throttle = @throttle - 1
                 if @throttle is 0
                     # XXX dont seem to seen this controls update call

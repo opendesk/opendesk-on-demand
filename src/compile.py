@@ -27,9 +27,6 @@ AXIS = (
 )
 
 MATCH_EXPRESSIONS = {
-    'face': re.compile('^vf ', re.U),
-    'layer': re.compile('^g ', re.U),
-    'not_alpha_numeric': re.compile('[^0-9a-zA-Z]+', re.U),
     'vertex': re.compile('^v ', re.U),
 }
 
@@ -51,27 +48,14 @@ class Parser(object):
         self.expr = MATCH_EXPRESSIONS
 
     def __call__(self):
-        layer = None
         for line in self.lines:
-            if self.expr['layer'].match(line):
-                layer = self.parse_layer(line)
-            elif self.expr['vertex'].match(line):
-                item = self.parse_geometry(line, layer, u'vertex')
-            # elif self.expr['face'].match(line):
-            #     item = self.parse_geometry(line, layer, u'face')
+            if self.expr['vertex'].match(line):
+                item = self.parse_geometry(line, u'vertex')
             else:
                 item = self.pass_through(line)
             yield item
 
-    def parse_layer(self, line):
-        """When we encounter a layer, we just want to get the name from it."""
-
-        parts = line.split(' ')
-        layer_name = parts[1].lower()
-        not_alpha_numeric = self.expr['not_alpha_numeric']
-        return re.sub(not_alpha_numeric, u'-', layer_name)
-
-    def parse_geometry(self, line, layer, type_):
+    def parse_geometry(self, line, type_):
         """When we encounter a line with geometry values, we want to
           record the type, layer and the x, y, x geometry values.
         """
@@ -79,7 +63,6 @@ class Parser(object):
         parts = line.split(' ')
         return {
             'type': type_,
-            'layer': layer,
             'geometry': {
                 'x': float(parts[1]),
                 'y': float(parts[2]),
