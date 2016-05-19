@@ -36,7 +36,7 @@ AXIS = (
     u'z',
 )
 MATCH_EXPRESSIONS = {
-    'vertex': re.compile('^v ', re.U),
+    'vertex': re.compile('^vertex ', re.U),
 }
 
 # XXX Hardcoded for local dev.
@@ -82,7 +82,7 @@ class Generator(object):
                     param_filepath = os.path.join(target_dir, filename)
                     param_files[key] = open(param_filepath, 'r', encoding='latin-1')
                 parser = Parser(source_file, param_files)
-                gen_lines = parser()
+                gen_lines = parser(config_json)
                 obj_json = {
                     'data': list(gen_lines)
                 }
@@ -100,14 +100,51 @@ class Parser(object):
     def __init__(self, source_file, param_files, **kwargs):
         self.lines = gen_lines(source_file)
         self.params = {
-            k: gen_lines(v) for k, v in param_files.items()
+            k: list(gen_lines(v)) for k, v in param_files.items()
         }
         self.expr = MATCH_EXPRESSIONS
 
-    def __call__(self):
+    def __call__(self, config_data):
         for i, line in enumerate(self.lines):
             if self.expr['vertex'].match(line):
                 item = self.parse_geometry(i, line, u'vertex')
+                # for each parameter
+                for key, alt_lines in self.params.items():
+                    # Grab the difference between the default and the
+                    # deliberately changed value.
+                    c = config_data['parameters'][key]
+                    diff_param = c['comparison_value'] - c['initial_value']
+                    log('-')
+                    log(diff_param=diff_param)
+                    # Get the corresponding value.
+                    alt_line = alt_lines[i]
+                    alt_item = self.parse_geometry(i, alt_line, u'vertex')
+                    # For each geometry value
+                    for axis in AXIS:
+                        geom_value = item['geometry'].get(axis)
+                        alt_value = alt_item['geometry'].get(axis)
+                        # If it's changed
+                        if geom_value != alt_value:
+                              if item.get('transformations') is None:
+                                  item['transformations'] = {}
+                              # Add transformation with `factor = diff_value / diff_param`
+                              diff_value = geom_value*100.0 - alt_value*100.0
+                              log(diff_value=diff_value)
+                              factor = diff_value / diff_param
+                              # factor = factor # / 2.0
+                              log(factor=factor)
+
+                              transformation_key = '{0}_by_{1}'.format(axis, key)
+                              item['transformations'][transformation_key] = {
+                                  axis: {
+                                      'use': 'add',
+                                      'args': [
+                                          '@',
+                                          '${0}'.format(key),
+                                          factor,
+                                      ]
+                                  }
+                              }
             else:
                 item = self.pass_through(line)
             yield item
@@ -117,56 +154,15 @@ class Parser(object):
           record the type, layer and the x, y, x geometry values.
         """
 
-        parts = line.split(' ')
-        node = {
+        parts = line[6:].strip().split()
+        return {
             'type': type_,
             'geometry': {
-                'x': float(parts[1]),
-                'y': float(parts[2]),
-                'z': float(parts[3]),
+                'x': float(parts[0]),
+                'y': float(parts[1]),
+                'z': float(parts[2]),
             },
         }
-        # For each parameter
-            # For each geometry value
-                # If it's changed
-                    # add transformation with
-                    # `factor = diff_value / diff_param`
-
-        """
-            applicable = defaultdict(dict)
-            for key, transformation in transformations.iteritems():
-                match = transformation.get('match', {})
-                bounds = match.get('bounds', {})
-                layers = match.get('layers', [])
-                if layers and item.has_key('layer'):
-                    layer = item.get('layer')
-                    matches = False
-                    for pattern in layers:
-                        matches = fnmatch.fnmatchcase(layer, pattern)
-                    if not matches:
-                        continue
-                if bounds:
-                    matches_bounds = True
-                    geometry = item.get('geometry')
-                    for axis in AXIS:
-                        if bounds.has_key(axis):
-                            min_, max_ = bounds.get(axis)
-                            geom_value = geometry.get(axis)
-                            if geom_value < min_:
-                                matches_bounds = False
-                            if geom_value > max_:
-                                matches_bounds = False
-                            if not matches_bounds:
-                                break
-                    if not matches_bounds:
-                        continue
-                properties = transformation['properties']
-                for property_, instruction in properties.iteritems():
-                    applicable[key][property_] = copy.deepcopy(instruction)
-            if applicable:
-                item['transformations'] = applicable
-        """
-        raise NotImplementedError
 
     def pass_through(self, line):
         """When we encounter a line we don't want to amend, we just pass

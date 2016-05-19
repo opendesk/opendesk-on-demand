@@ -2,6 +2,9 @@
 
 """Fusion 360 Python3 plugin to export parameterised models."""
 
+import syslog
+syslog.openlog('od-fusion')
+
 import adsk.core
 import adsk.fusion
 
@@ -85,7 +88,8 @@ class HandleExport(adsk.core.CommandEventHandler):
     def set_param(self, target, name, value):
         for param in target.allParameters:
             if param.name == name:
-                param.value = value
+                param.value += 2
+                # param.value += 200
 
     def export(self, design, name, tmp_dir):
         """Unpack the design. Grab the params and format as winnow data.
@@ -161,6 +165,7 @@ class HandleExport(adsk.core.CommandEventHandler):
                 # by this parameter.
                 stl = os.path.join(tmp_dir, '{0}.stl'.format(key))
                 opts = export_manager.createSTLExportOptions(component, stl)
+                opts.isBinaryFormat = False
                 opts.meshRefinement = HIGHLY_REFINED
                 export_manager.execute(opts)
             finally:
