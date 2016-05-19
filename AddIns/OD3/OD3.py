@@ -169,7 +169,8 @@ class HandleExport(adsk.core.CommandEventHandler):
                 opts.meshRefinement = HIGHLY_REFINED
                 export_manager.execute(opts)
             finally:
-                self.set_param(design, item.name, initial_value)
+                pass
+                # self.set_param(design, item.name, initial_value)
 
         # Call the opendesk.export entry point with the folder
         return opendesk.export(name, tmp_dir)
