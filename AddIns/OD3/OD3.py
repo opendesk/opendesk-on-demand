@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Fusion 360 Python3 plugin to export parameterised models."""
-
-import syslog
-syslog.openlog('od-fusion')
+"""Fusion 360 plugin to export parameterised models."""
 
 import adsk.core
 import adsk.fusion
@@ -22,10 +19,9 @@ import webbrowser
 from .packages import opendesk
 log = opendesk.log
 
-HIGHLY_REFINED = adsk.fusion.MeshRefinementSettings.MeshRefinementHigh
+MESH_REFINEMENT = adsk.fusion.MeshRefinementSettings.MeshRefinementLow
 
-# Keep event handler instances in memory, i.e.: so they don't get
-# garbage collected.
+# Keep event handlers in memory, so they don't get garbage collected.
 handlers = []
 
 def slugify(s):
@@ -55,14 +51,6 @@ def as_number(s):
     else:
         if str(a) == s:
             return a
-    # try:
-    #     b = float(s)
-    # except ValueError:
-    #     pass
-    # else:
-    #     if str(b) == s:
-    #         return b
-    # return complex(s)
     return float(s)
 
 def get_comparison_value(config_item):
@@ -81,7 +69,7 @@ def get_comparison_value(config_item):
     raise NotImplementedError
 
 class HandleExport(adsk.core.CommandEventHandler):
-    """Write the model as an `.obj` file + params data to the filesystem and
+    """Write the model as an `.stl` file + params data to the filesystem and
       then post them to a web API endpoint.
     """
 
@@ -144,7 +132,7 @@ class HandleExport(adsk.core.CommandEventHandler):
         source_opts = export_manager.createSTLExportOptions(component,
                 source_stl)
         source_opts.isBinaryFormat = False
-        source_opts.meshRefinement = HIGHLY_REFINED
+        source_opts.meshRefinement = MESH_REFINEMENT
         export_manager.execute(source_opts)
 
         # For each parameter, export a `{{ param }}.stl` file.
@@ -166,7 +154,7 @@ class HandleExport(adsk.core.CommandEventHandler):
                 stl = os.path.join(tmp_dir, '{0}.stl'.format(key))
                 opts = export_manager.createSTLExportOptions(component, stl)
                 opts.isBinaryFormat = False
-                opts.meshRefinement = HIGHLY_REFINED
+                opts.meshRefinement = MESH_REFINEMENT
                 export_manager.execute(opts)
             finally:
                 pass
