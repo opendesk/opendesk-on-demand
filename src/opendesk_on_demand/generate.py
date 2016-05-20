@@ -143,10 +143,10 @@ class Parser(object):
         self.config = config
         self.transformations = config.get('transformations', {})
         self.source_file = source_file
-        self.param_files = {
+        self.params = {
             k: list(self.gen_lines(v)) for k, v in param_files.items()
         }
-        if self.param_files:
+        if self.params:
             self.transform = self.apply_dynamic_transformations
         else:
             self.transform = self.apply_manual_transformations
@@ -156,9 +156,9 @@ class Parser(object):
     def __call__(self):
         gen_lines = self.gen_lines(self.source_file)
         gen_items = self.parse(gen_lines)
-        return transform(gen_items)
+        return self.transform(gen_items)
 
-    def gen_lines(obj_file):
+    def gen_lines(self, obj_file):
         """Like ``obj_file.readlines()`` but capable of handling long lines
           that are indented.
         """
@@ -192,7 +192,7 @@ class Parser(object):
             'line': line,
         }
 
-    def parse_geometry(self, i, line, type_):
+    def parse_geometry(self, line, type_):
         """When we encounter a line with geometry values, we want to
           record the type, layer and the x, y, x geometry values.
         """
@@ -226,7 +226,7 @@ class Parser(object):
         """
 
         for i, item in enumerate(gen_items):
-            if item.has_key('geometry'):
+            if 'geometry' in item:
                 for key, alt_lines in self.params.items():
                     # Grab the difference between the default and the
                     # deliberately changed value.
@@ -266,13 +266,13 @@ class Parser(object):
         """Apply any transformation rules in the ``config.json``."""
 
         for item in gen_items:
-            if item.has_key('geometry'):
+            if 'geometry' in item:
                 applicable = collections.defaultdict(dict)
                 for key, transformation in self.transformations.items():
                     match = transformation.get('match', {})
                     bounds = match.get('bounds', {})
                     layers = match.get('layers', [])
-                    if layers and item.has_key('layer'):
+                    if layers and 'layer' in item:
                         layer = item.get('layer')
                         matches = False
                         for pattern in layers:
@@ -283,7 +283,7 @@ class Parser(object):
                         matches_bounds = True
                         geometry = item.get('geometry')
                         for axis in AXIS:
-                            if bounds.has_key(axis):
+                            if axis in bounds:
                                 min_, max_ = bounds.get(axis)
                                 geom_value = geometry.get(axis)
                                 if geom_value < min_:
@@ -295,7 +295,7 @@ class Parser(object):
                         if not matches_bounds:
                             continue
                     properties = transformation['properties']
-                    for property_, instruction in properties.iteritems():
+                    for property_, instruction in properties.items():
                         applicable[key][property_] = copy.deepcopy(instruction)
                 if applicable:
                     item['transformations'] = applicable

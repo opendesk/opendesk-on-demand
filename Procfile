@@ -1,2 +1,2 @@
 client: coffee -m -o .build/ -cw src/client/
-server: python -m SimpleHTTPServer
+server: python -m http.server

@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import argparse
+import json
 import subprocess
 import os
 import os.path
@@ -14,13 +15,13 @@ from . import generate
 def is_within_git_repo():
     with open(os.devnull, 'w') as out:
         cmd = ["git", "branch"]
-        exit_code = subprocess.call(cmd, stderr=STDOUT, stdout=out)
+        exit_code = subprocess.call(cmd, stderr=out, stdout=out)
     return exit_code is 0
 
 def default_output_dir():
-    if is_within_git_repo()
+    if is_within_git_repo():
         here = os.path.dirname(__file__)
-        return os.path.join(here, '..', '..', '.build', 'examples')
+        return os.path.join(here, '..', '..', '.build')
     return os.path.expanduser('~/.opendesk-on-demand')
 
 def get_output_dir():
@@ -32,8 +33,8 @@ def write_to_filesystem(name, target_dir, model_units, extension, output_dir=Non
     """Python entry point to write the generated files to an output folder."""
 
     # Parse the target_dir to generate the data.
-    generate = generate.Generator(target_dir, model_units, extension=extension)
-    obj_data, config_data = generate()
+    generator = generate.Generator(target_dir, model_units, extension=extension)
+    obj_data, config_data = generator()
 
     # Make sure the output folder exists.
     if output_dir is None:
@@ -60,20 +61,20 @@ def post_to_webserver(name, target_dir, model_units, extension, **kwargs):
     """XXX"""
 
     # Parse the target_dir to generate the data.
-    generate = generate.Generator(target_dir, model_units, extension=extension)
-    obj_data, config_data = generate()
+    generator = generate.Generator(target_dir, model_units, extension=extension)
+    obj_data, config_data = generator()
 
     # XXX Post to an API endpoint.
     raise NotImplementedError
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('name')
     parser.add_argument('target_dir')
-    parser.add_argument('model_units', default='cm')
-    parser.add_argument('extension', default=None)
-    parser.add_argument('output_dir', default=None)
-    parser.add_argument('mode', default=u'local', choices=['local', 'web'])
+    parser.add_argument('--extension', default=None)
+    parser.add_argument('--mode', default=u'local', choices=['local', 'web'])
+    parser.add_argument('--name', default=None)
+    parser.add_argument('--output', default=None)
+    parser.add_argument('--units', default='cm')
     return parser.parse_args()
 
 def main():
@@ -83,21 +84,20 @@ def main():
     if args.mode == u'local':
         exporter = write_to_filesystem
         kwargs = {
-            'output_dir': args.output_dir,
+            'output_dir': args.output,
         }
     else:
         exporter = post_to_webserver
         kwargs = {}
-    output = exporter(
-        args.name,
-        args.target_dir,
-        args.model_units,
-        args.extension,
-        **kwargs
-    )
-    print(u'Exported:')
+    target_dir = args.target_dir
+    name = args.name if args.name else os.path.basename(target_dir)
+    print('Compiling {0}'.format(name))
+    output = exporter(name, target_dir, args.units, args.extension, **kwargs)
+    print('Output:')
+    print('- filesystem:')
     print(output)
-    return output
+    print('- localhost:')
+    print('http://localhost:8000/demo.html?example={0}'.format(name))
 
 if __name__ == '__main__':
     main()
