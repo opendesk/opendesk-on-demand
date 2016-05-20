@@ -166,11 +166,6 @@ class HandleExport(adsk.core.CommandEventHandler):
             raw_comparison_value = config_item['comparison_value']
             initial_value = convert_to_model_units(raw_initial_value, units)
             comparison_value = convert_to_model_units(raw_comparison_value, units)
-            log.warn('units', units)
-            log.warn('raw_initial_value', raw_initial_value)
-            log.warn('raw_comparison_value', raw_comparison_value)
-            log.warn('initial_value', initial_value)
-            log.warn('comparison_value', comparison_value)
             try:
                 # Cascade the new parameter value to the design and all it's
                 # sub components (and their sub components, and ...).

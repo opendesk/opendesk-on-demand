@@ -33,7 +33,7 @@ def log(level, *args, **kwargs):
     messages = [u'{0}'.format(x) for x in args]
     messages += [u'{0}: {1}'.format(k, v) for k, v in kwargs.items()]
     for msg in messages:
-        levels['logger'][level](msg)
+        # levels['logger'][level](msg)
         syslog.syslog(levels['syslog'][level], msg)
 
 def debug(*args, **kwargs):

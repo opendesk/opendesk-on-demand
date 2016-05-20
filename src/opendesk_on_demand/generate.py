@@ -238,9 +238,6 @@ class Parser(object):
                     comp_value = self.get_in_geom_units(c, 'comparison_value')
                     init_value = self.get_in_geom_units(c, 'initial_value')
                     diff_param = comp_value - init_value
-                    log.warn('comp_value', comp_value)
-                    log.warn('init_value', init_value)
-                    log.warn('diff_param', diff_param)
                     # Get the corresponding value.
                     alt_line = alt_lines[i]
                     alt_item = self.parse_geometry(alt_line, item['type'])

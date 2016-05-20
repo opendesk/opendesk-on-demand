@@ -41,15 +41,10 @@ def write_to_filesystem(name, target_dir, model_units, geometry_units,
         extension, output_dir=None):
     """Python entry point to write the generated files to an output folder."""
 
-    log.warn('write_to_filesystem', name, target_dir, model_units, extension, output_dir)
-
     # Parse the target_dir to generate the data.
     generator = generate.Generator(target_dir, model_units, geometry_units,
             extension=extension)
     obj_data, config_data = generator()
-
-    log.warn(obj_data['data'][:5])
-    log.warn(config_data)
 
     # Make sure the output folder exists.
     if output_dir is None:
