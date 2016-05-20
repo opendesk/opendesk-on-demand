@@ -5,23 +5,31 @@
 from __future__ import print_function
 
 import argparse
+import glob
 import json
-import subprocess
 import os
 import os.path
 
 from . import generate
+from . import log
+
+HERE = os.path.dirname(__file__)
 
 def is_within_git_repo():
-    with open(os.devnull, 'w') as out:
-        cmd = ["git", "branch"]
-        exit_code = subprocess.call(cmd, stderr=out, stdout=out)
-    return exit_code is 0
+    path = HERE
+    while True:
+        dot_git = os.path.join(path, '.git')
+        if glob.glob(dot_git):
+            return True
+        parent = os.path.dirname(path)
+        if parent == path:
+            break
+        path = parent
+    return False
 
 def default_output_dir():
     if is_within_git_repo():
-        here = os.path.dirname(__file__)
-        return os.path.join(here, '..', '..', '.build')
+        return os.path.join(HERE, '..', '..', '.build')
     return os.path.expanduser('~/.opendesk-on-demand')
 
 def get_output_dir():
@@ -32,9 +40,14 @@ def get_output_dir():
 def write_to_filesystem(name, target_dir, model_units, extension, output_dir=None):
     """Python entry point to write the generated files to an output folder."""
 
+    log.warn('write_to_filesystem', name, target_dir, model_units, extension, output_dir)
+
     # Parse the target_dir to generate the data.
     generator = generate.Generator(target_dir, model_units, extension=extension)
     obj_data, config_data = generator()
+
+    log.warn(obj_data['data'][:5])
+    log.warn(config_data)
 
     # Make sure the output folder exists.
     if output_dir is None:
@@ -55,6 +68,7 @@ def write_to_filesystem(name, target_dir, model_units, extension, output_dir=Non
     with open(config_filepath, 'w') as f:
         f.write(config_json)
 
+    log.warn('model_dir', model_dir)
     return model_dir
 
 def post_to_webserver(name, target_dir, model_units, extension, **kwargs):

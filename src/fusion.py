@@ -15,8 +15,9 @@ import urllib.parse
 import uuid
 import webbrowser
 
-from opendesk_on_demand import main
-from opendesk_on_demand import generate
+from .opendesk_on_demand import log
+from .opendesk_on_demand import main
+from .opendesk_on_demand import generate
 
 FILE_FORMAT = 'stl'
 MODEL_UNITS = 'cm'
@@ -171,7 +172,8 @@ class HandleExport(adsk.core.CommandEventHandler):
             name = slugify(app.activeDocument.name)
             with tempfile.TemporaryDirectory() as tmp_dir:
                 try:
-                    self.export(design, name, tmp_dir)
+                    output_dir = self.export(design, name, tmp_dir)
+                    log.info(output_dir)
                 except Exception:
                     raise
                 finally:
@@ -184,7 +186,7 @@ class HandleExport(adsk.core.CommandEventHandler):
             ui.messageBox(u'Export successful!')
         except Exception:
             if ui:
-                util.warn('ERROR', traceback.format_exc())
+                log.warn('ERROR', traceback.format_exc())
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 class HandleCreated(adsk.core.CommandCreatedEventHandler):
@@ -202,7 +204,7 @@ class HandleCreated(adsk.core.CommandCreatedEventHandler):
             handlers.append(handle_export)
         except Exception:
             if ui:
-                util.warn('ERROR', traceback.format_exc())
+                log.warn('ERROR', traceback.format_exc())
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 def run(context):
@@ -210,6 +212,7 @@ def run(context):
 
     ui = None
     try:
+        log.info('Running...')
         # Unpack.
         app = adsk.core.Application.get()
         ui  = app.userInterface
@@ -237,7 +240,7 @@ def run(context):
         _ = surface_panel.controls.addCommand(btn, '', False)
     except Exception:
         if ui:
-            util.warn('ERROR', traceback.format_exc())
+            log.warn('ERROR', traceback.format_exc())
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 def stop(context):
@@ -266,5 +269,5 @@ def stop(context):
             del item
     except Exception:
         if ui:
-            util.warn('ERROR', traceback.format_exc())
+            log.warn('ERROR', traceback.format_exc())
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
