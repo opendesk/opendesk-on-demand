@@ -59,13 +59,29 @@ def as_number(s):
 def get_comparison_value(config_item):
     """Given a winnow option-value dict, figure out the value to set
       for the revised STL export.
+
+      It's important to return a small enough difference to avoid
+      triggering a different geometry layout, as this causes the
+      lines of the exported files to diverge.
+
+      However, it's also fairly important to return some kind of
+      difference, as we don't want to get caught out by a lack
+      of rounding precision.
+
+      So, we shoot for +-2% of the initial value.
     """
 
     initial_value = config_item['initial_value']
     value = config_item['value']
     if value.get('type') == 'numeric::range':
+        two_percent_less = initial_value * 0.98
+        two_percent_more = initial_value * 1.02
         min_ = value['min']
         max_ = value['max']
+        if two_percent_more < max_:
+            return two_percent_more
+        if two_percent_less > min_:
+            return two_percent_less
         if initial_value < max_:
             return max_
         return min_
