@@ -234,6 +234,9 @@ class Parser(object):
                     comp_value = self.get_in_geom_units(c, 'comparison_value')
                     init_value = self.get_in_geom_units(c, 'initial_value')
                     diff_param = comp_value - init_value
+                    log.warn('comp_value', comp_value)
+                    log.warn('init_value', init_value)
+                    log.warn('diff_param', diff_param)
                     # Get the corresponding value.
                     alt_line = alt_lines[i]
                     alt_item = self.parse_geometry(alt_line, item['type'])
@@ -246,9 +249,13 @@ class Parser(object):
                               if item.get('transformations') is None:
                                   item['transformations'] = {}
                               # Add transformation with `factor = diff_value / diff_param`
-                              diff_value = geom_value - alt_value
+                              diff_value = alt_value - geom_value
                               factor = diff_value / diff_param
-                              # factor = factor # / 2.0
+                              factor = factor / 2
+                              log.warn('geom_value', geom_value)
+                              log.warn('alt_value', alt_value)
+                              log.warn('diff_value', diff_value)
+                              log.warn('factor (diff_value / diff_param)', factor)
                               transformation_key = '{0}_by_{1}'.format(axis, key)
                               item['transformations'][transformation_key] = {
                                   axis: {
