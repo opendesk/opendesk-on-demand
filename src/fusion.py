@@ -29,10 +29,15 @@ handlers = []
 def slugify(s):
     return re.sub(r'[^0-9a-zA-Z]+', '-', s)
 
-def convert(model_value, target_units):
+def convert_from_model_units(value, target_units):
     """Convert the `value` from the MODEL_UNITS into the `units` provided."""
 
-    return generate.convert_units(model_value, MODEL_UNITS, target_units)
+    return generate.convert_units(value, MODEL_UNITS, target_units)
+
+def convert_to_model_units(value, target_units):
+    """Convert the `value` from the MODEL_UNITS into the `units` provided."""
+
+    return generate.convert_units(value, target_units, MODEL_UNITS)
 
 def is_number(s):
     try:
@@ -74,8 +79,7 @@ class HandleExport(adsk.core.CommandEventHandler):
     def set_param(self, target, name, value):
         for param in target.allParameters:
             if param.name == name:
-                param.value += 2
-                # param.value += 200
+                param.value = value
 
     def export(self, design, name, tmp_dir):
         """Unpack the design. Grab the params and format as winnow data.
@@ -110,7 +114,7 @@ class HandleExport(adsk.core.CommandEventHandler):
             }
             if item.unit:
                 param['units'] = item.unit
-                param['initial_value'] = convert(item.value, item.unit)
+                param['initial_value'] = convert_from_model_units(item.value, item.unit)
             else:
                 param['units'] = MODEL_UNITS
                 param['initial_value'] = item.value
@@ -140,8 +144,16 @@ class HandleExport(adsk.core.CommandEventHandler):
             config_item = params.get(key)
             if not config_item:
                 continue
-            initial_value = config_item['initial_value']
-            comparison_value = config_item['comparison_value']
+            units = config_item['units']
+            raw_initial_value = config_item['initial_value']
+            raw_comparison_value = config_item['comparison_value']
+            initial_value = convert_to_model_units(raw_initial_value, units)
+            comparison_value = convert_to_model_units(raw_comparison_value, units)
+            log.warn('units', units)
+            log.warn('raw_initial_value', raw_initial_value)
+            log.warn('raw_comparison_value', raw_comparison_value)
+            log.warn('initial_value', initial_value)
+            log.warn('comparison_value', comparison_value)
             try:
                 # Cascade the new parameter value to the design and all it's
                 # sub components (and their sub components, and ...).
@@ -156,8 +168,7 @@ class HandleExport(adsk.core.CommandEventHandler):
                 opts.meshRefinement = MESH_REFINEMENT
                 export_manager.execute(opts)
             finally:
-                pass
-                # self.set_param(design, item.name, initial_value)
+                self.set_param(design, item.name, initial_value)
 
         # Call the opendesk.write_to_filesystem entry point with the folder
         return main.write_to_filesystem(name, tmp_dir, MODEL_UNITS, FILE_FORMAT)

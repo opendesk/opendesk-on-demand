@@ -70,6 +70,8 @@ VERSION = '0.0.1'
 def convert_units(value, from_units, to_units):
     """Generic unit conversion between cm, mm and inches."""
 
+    if from_units == to_units:
+        return value
     normalise_inches = lambda x: 'in' if x.startswith('in') else x
     pair = (normalise_inches(from_units), normalise_inches(to_units))
     for item in UNIT_CONVERSIONS:
@@ -211,8 +213,11 @@ class Parser(object):
     def get_in_geom_units(self, config_item, key):
         value = config_item.get(key)
         units = config_item.get('units', None)
+        log.warn('get_in_geom_units', config_item, key, value, units)
         if units:
-            value = convert_units(value, units, self.model_units)
+            log.warn('self.model_units', self.model_units)
+            value = convert_units(value, units, 'mm') # self.model_units)
+            log.warn('converted value', value)
         return value
 
     def apply_dynamic_transformations(self, gen_items):
@@ -251,7 +256,6 @@ class Parser(object):
                               # Add transformation with `factor = diff_value / diff_param`
                               diff_value = alt_value - geom_value
                               factor = diff_value / diff_param
-                              factor = factor / 2
                               log.warn('geom_value', geom_value)
                               log.warn('alt_value', alt_value)
                               log.warn('diff_value', diff_value)
