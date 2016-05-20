@@ -65,6 +65,7 @@ UNIT_CONVERSIONS = (
     ('in', 'cm', 2.54),
     ('in', 'mm', 25.4),
 )
+VERSION = '0.0.1'
 
 def convert_units(value, from_units, to_units):
     """Generic unit conversion between cm, mm and inches."""
@@ -110,6 +111,10 @@ class Generator(object):
                 gen_items = parser()
                 obj_data = {
                     'data': list(gen_items),
+                    'meta': {
+                        'format': self.extension,
+                        'version': VERSION,
+                    }
                 }
                 return obj_data, config_data
         finally:

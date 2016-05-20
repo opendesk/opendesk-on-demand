@@ -138,6 +138,7 @@ define 'opendesk.on_demand.client', (exports) ->
             @model.set 'obj_string', obj_string
 
         line: (node, index, ast) =>
+            meta = @model.get 'obj_meta'
             params = @model.get 'parameters'
             choices = @model.get 'choice_doc'
             switch node.type
@@ -161,7 +162,14 @@ define 'opendesk.on_demand.client', (exports) ->
                                     else
                                         a
                             geom[key] = lib_func params, choices, args...
-                    line = "vertex   #{ geom.x } #{ geom.y } #{ geom.z }"
+                    # XXX these templates should be extracted somewhere manageable.
+                    switch meta.format
+                        when 'stl'
+                            line = "vertex   #{ geom.x } #{ geom.y } #{ geom.z }"
+                        when 'obj'
+                            line = "v #{ geom.x } #{ geom.y } #{ geom.z }"
+                        else
+                            throw "`#{ meta.format }` format is not supported"
                 else
                     throw "#{ node.type }"
             line
@@ -221,6 +229,9 @@ define 'opendesk.on_demand.client', (exports) ->
             height: $(window).height() * 0.8
 
         render: (model, obj_string) =>
+            meta = @model.get 'obj_meta'
+            if @object?
+                @scene.remove @object
             if @mesh?
                 @scene.remove @mesh
             if @edges?
@@ -228,24 +239,38 @@ define 'opendesk.on_demand.client', (exports) ->
             else
                 @edges = []
             @scene.remove child for child in @scene.children.reverse()
-            loader = new THREE.STLLoader
-            @geometry = loader.parse obj_string
-            @mesh = new THREE.Mesh @geometry, @material
-            @mesh.position.set 0, -0.25, 0.6
-            @mesh.rotation.set 0, -Math.PI/2, 0
-            @mesh.scale.set 0.2, 0.2, 0.2
-            @mesh.castShadow = true
-            @mesh.receiveShadow = true
-            edges_helper = new THREE.EdgesHelper @mesh, 0x000000
-            @scene.add @mesh
-            @scene.add edges_helper
-            @edges.push edges_helper
+            switch meta.format
+                when 'stl'
+                    loader = new THREE.STLLoader
+                    @geometry = loader.parse obj_string
+                    @mesh = new THREE.Mesh @geometry, @material
+                    @mesh.position.set 0, -0.25, 0.6
+                    @mesh.rotation.set 0, -Math.PI/2, 0
+                    @mesh.scale.set 0.2, 0.2, 0.2
+                    @mesh.castShadow = true
+                    @mesh.receiveShadow = true
+                    edges_helper = new THREE.EdgesHelper @mesh, 0x000000
+                    @scene.add @mesh
+                    @scene.add edges_helper
+                    @edges.push edges_helper
+                when 'obj'
+                    loader = new THREE.OBJLoader
+                    @object = loader.parse obj_string
+                    @object.traverse (child) =>
+                        if child instanceof THREE.Mesh
+                            child.material = @material
+                            edges_helper = new THREE.EdgesHelper child, 0x000000
+                            @scene.add edges_helper
+                            @edges.push edges_helper
+                    @scene.add @object
+                else
+                    throw "`#{ meta.format }` format is not supported"
 
         animate: =>
-            if @mesh?
+            if @mesh? or @object?
                 @throttle = @throttle - 1
                 if @throttle is 0
-                    # XXX dont seem to seen this controls update call
+                    # XXX dont seem to need this controls update call
                     # @controls.update()
                     @renderer.render @scene, @camera
                     @throttle = 5
@@ -273,6 +298,16 @@ define 'opendesk.on_demand.client', (exports) ->
             complete()
         $.getJSON options.obj_path, (obj) ->
             data.obj_as_ast = obj.data
+            data.obj_meta = obj.meta
+            # Backwards compatibility with models exported before
+            # we introduced metadata.
+            if not data.obj_meta?
+                if data.obj_as_ast[0].line is 'solid ASCII'
+                    data.obj_meta =
+                        format: 'stl'
+                else
+                    data.obj_meta =
+                        format: 'obj'
             num_performed += 1
             complete()
         complete = () ->
