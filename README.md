@@ -8,7 +8,7 @@ You can view the published demos at https://opendesk-on-demand.firebaseapp.com/
 
 ## Demo
 
-Clone the repo, `cd` into the folder, run e.g.: `python -m SimpleHTTPServer` and open your browser at [localhost:8000/demo/index.html](http://localhost:8000/demo/index.html). Play with the controls to see the model adapt. When ready, save and check the console output.
+Clone the repo, `cd` into the folder, run e.g.: `python -m SimpleHTTPServer` and open your browser at [localhost:8000/demo.html](http://localhost:8000/demo.html). Play with the controls to see the model adapt. When ready, save and check the console output.
 
 ## How it Works
 

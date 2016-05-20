@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Opendesk On Demand
+    </title>
+    <link rel="stylesheet" href="/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/vendor/highlight.css" />
+    <script src="/vendor/jquery.js"></script>
+    <!--script src="/vendor/bootstrap.js"></script-->
+    <script src="/vendor/underscore.js"></script>
+    <script src="/vendor/backbone.js"></script>
+    <script src="/vendor/handlebars.js"></script>
+    <script src="/vendor/highlight.js"></script>
+    <script src="/vendor/three/three.js"></script>
+    <script src="/vendor/three/orbital.js"></script>
+    <script src="/vendor/three/stl_loader.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Opendesk On Demand</a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li data-active-when-example="desk_length">
+                <a href="/demo.html?example=desk_length">
+                  Desk</a>
+              </li>
+              <li data-active-when-example="lift_desk">
+                <a href="/demo.html?example=lift_desk">
+                  Lift</a>
+              </li>
+              <li data-active-when-example="box_height">
+                <a href="/demo.html?example=box_height">
+                  Box</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Controls
+            </div>
+            <div class="panel-body">
+              <div id="controls">
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Winnow Choice Doc
+              (<a href="http://opendesk.github.io/winnow/">#</a>)
+            </div>
+            <div class="panel-body">
+              <div id="choices">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Viewer
+            </div>
+            <div class="panel-body">
+              <div id="viewer">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/.build/namespace.js"></script>
+    <script src="/.build/lib.js"></script>
+    <script src="/.build/client.js"></script>
+    <script>
+      (function () {
+        var example = window.getQueryString('example');
+        if (!example) {
+          example = 'box_height';
+        }
+        opendesk.on_demand.client.main({
+          'config_path': '/.build/' + example + '/config.json',
+          'obj_path': '/.build/' + example + '/obj.json'
+        });
+        var $li = $('*[data-active-when-example="' + example + '"]');
+        $li.addClass('active');
+      })();
+    </script>
+  </body>
+</html>
