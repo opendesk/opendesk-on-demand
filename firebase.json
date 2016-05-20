@@ -2,10 +2,19 @@
   "firebase": "opendesk-on-demand",
   "public": ".",
   "ignore": [
+    ".gitignore",
+    ".Python",
+    "_legacy",
+    "bin",
+    "docs",
+    "include",
+    "lib",
     "firebase.json",
+    "setup.py",
     "src",
     "Procfile",
-    "READM*",
+    "README.md",
+    "TODO.md",
     "UNLICENSE"
   ]
 }

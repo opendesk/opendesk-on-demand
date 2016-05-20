@@ -8,13 +8,15 @@
     <link rel="stylesheet" href="/vendor/bootstrap.min.css" />
     <link rel="stylesheet" href="/vendor/highlight.css" />
     <script src="/vendor/jquery.js"></script>
+    <!--script src="/vendor/bootstrap.js"></script-->
     <script src="/vendor/underscore.js"></script>
     <script src="/vendor/backbone.js"></script>
     <script src="/vendor/handlebars.js"></script>
     <script src="/vendor/highlight.js"></script>
     <script src="/vendor/three/three.js"></script>
     <script src="/vendor/three/orbital.js"></script>
-    <script src="/vendor/three/loader.js"></script>
+    <script src="/vendor/three/obj_loader.js"></script>
+    <script src="/vendor/three/stl_loader.js"></script>
   </head>
   <body>
     <div class="container">
@@ -31,17 +33,25 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li>
+              <li data-active-when-example="desk_length">
                 <a href="/demo.html?example=desk_length">
-                  Desk</a>
+                  v1 Inventor Desk</a>
               </li>
-              <li>
+              <li data-active-when-example="lift_desk">
                 <a href="/demo.html?example=lift_desk">
-                  Lift</a>
+                  v1 Inventor Lift</a>
               </li>
-              <li>
+              <li data-active-when-example="box_height">
                 <a href="/demo.html?example=box_height">
-                  Box</a>
+                  v1 Inventor Box</a>
+              </li>
+              <li data-active-when-example="box-v4">
+                <a href="/demo.html?example=box-v4">
+                  v2 Fusion Box</a>
+              </li>
+              <li data-active-when-example="express-desk-james-v2">
+                <a href="/demo.html?example=express-desk-james-v2">
+                  v2 Fusion Desk</a>
               </li>
             </ul>
           </div>
