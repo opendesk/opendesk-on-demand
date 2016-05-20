@@ -84,9 +84,10 @@ class Generator(object):
       Coerce the return value.
     """
 
-    def __init__(self, target_dir, model_units, extension=None):
+    def __init__(self, target_dir, model_units, geometry_units, extension=None):
         self.target_dir = target_dir
         self.model_units = model_units
+        self.geometry_units = geometry_units
         self.extension = self.determine_extension(extension)
         self.file_format = FILE_FORMATS[self.extension]
 
@@ -107,9 +108,8 @@ class Generator(object):
                     if not os.path.exists(param_filepath):
                         continue
                     param_files[key] = open(param_filepath, 'r', encoding='latin-1')
-                fmt = self.file_format
-                units = self.model_units
-                parser = Parser(config_data, source_file, param_files, fmt, units)
+                parser = Parser(config_data, source_file, param_files,
+                        self.file_format, self.model_units, self.geometry_units)
                 gen_items = parser()
                 obj_data = {
                     'data': list(gen_items),
@@ -141,7 +141,8 @@ class Parser(object):
       Yields an item generator.
     """
 
-    def __init__(self, config, source_file, param_files, file_format, model_units):
+    def __init__(self, config, source_file, param_files, file_format,
+            model_units, geometry_units):
         self.config = config
         self.transformations = config.get('transformations', {})
         self.source_file = source_file
@@ -154,6 +155,7 @@ class Parser(object):
             self.transform = self.apply_manual_transformations
         self.file_format = file_format
         self.model_units = model_units
+        self.geometry_units = geometry_units
 
     def __call__(self):
         gen_lines = self.gen_lines(self.source_file)
@@ -213,11 +215,8 @@ class Parser(object):
     def get_in_geom_units(self, config_item, key):
         value = config_item.get(key)
         units = config_item.get('units', None)
-        log.warn('get_in_geom_units', config_item, key, value, units)
         if units:
-            log.warn('self.model_units', self.model_units)
-            value = convert_units(value, units, 'mm') # self.model_units)
-            log.warn('converted value', value)
+            value = convert_units(value, units, self.geometry_units)
         return value
 
     def apply_dynamic_transformations(self, gen_items):
@@ -256,10 +255,8 @@ class Parser(object):
                               # Add transformation with `factor = diff_value / diff_param`
                               diff_value = alt_value - geom_value
                               factor = diff_value / diff_param
-                              log.warn('geom_value', geom_value)
-                              log.warn('alt_value', alt_value)
-                              log.warn('diff_value', diff_value)
-                              log.warn('factor (diff_value / diff_param)', factor)
+                              if geom_value < 0:
+                                  factor = 0 - factor
                               transformation_key = '{0}_by_{1}'.format(axis, key)
                               item['transformations'][transformation_key] = {
                                   axis: {

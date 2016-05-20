@@ -37,13 +37,15 @@ def get_output_dir():
     default = default_output_dir()
     return os.environ.get(key, default)
 
-def write_to_filesystem(name, target_dir, model_units, extension, output_dir=None):
+def write_to_filesystem(name, target_dir, model_units, geometry_units,
+        extension, output_dir=None):
     """Python entry point to write the generated files to an output folder."""
 
     log.warn('write_to_filesystem', name, target_dir, model_units, extension, output_dir)
 
     # Parse the target_dir to generate the data.
-    generator = generate.Generator(target_dir, model_units, extension=extension)
+    generator = generate.Generator(target_dir, model_units, geometry_units,
+            extension=extension)
     obj_data, config_data = generator()
 
     log.warn(obj_data['data'][:5])
@@ -68,14 +70,15 @@ def write_to_filesystem(name, target_dir, model_units, extension, output_dir=Non
     with open(config_filepath, 'w') as f:
         f.write(config_json)
 
-    log.warn('model_dir', model_dir)
     return model_dir
 
-def post_to_webserver(name, target_dir, model_units, extension, **kwargs):
+def post_to_webserver(name, target_dir, model_units, geometry_units,
+        extension, **kwargs):
     """XXX"""
 
     # Parse the target_dir to generate the data.
-    generator = generate.Generator(target_dir, model_units, extension=extension)
+    generator = generate.Generator(target_dir, model_units, geometry_units,
+            extension=extension)
     obj_data, config_data = generator()
 
     # XXX Post to an API endpoint.
@@ -88,7 +91,8 @@ def parse_args():
     parser.add_argument('--mode', default=u'local', choices=['local', 'web'])
     parser.add_argument('--name', default=None)
     parser.add_argument('--output', default=None)
-    parser.add_argument('--units', default='cm')
+    parser.add_argument('--model-units', default='cm')
+    parser.add_argument('--geometry-units', default='mm')
     return parser.parse_args()
 
 def main():
@@ -105,8 +109,11 @@ def main():
         kwargs = {}
     target_dir = args.target_dir
     name = args.name if args.name else os.path.basename(target_dir)
+    model_units = args.model_units
+    geometry_units = args.geometry_units
     print('Compiling {0}'.format(name))
-    output = exporter(name, target_dir, args.units, args.extension, **kwargs)
+    output = exporter(name, target_dir, model_units, geometry_units,
+            args.extension, **kwargs)
     print('Output:')
     print('- filesystem:')
     print(output)

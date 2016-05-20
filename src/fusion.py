@@ -107,6 +107,7 @@ class HandleExport(adsk.core.CommandEventHandler):
         # Unpack the design.
         component = design.rootComponent
         export_manager = design.exportManager
+        units_manager = design.unitsManager
         user_params = design.userParameters
 
         # Grab the params and format as winnow data.
@@ -187,7 +188,8 @@ class HandleExport(adsk.core.CommandEventHandler):
                 self.set_param(design, item.name, initial_value)
 
         # Call the opendesk.write_to_filesystem entry point with the folder
-        return main.write_to_filesystem(name, tmp_dir, MODEL_UNITS, FILE_FORMAT)
+        return main.write_to_filesystem(name, tmp_dir, MODEL_UNITS,
+                units_manager.defaultLengthUnits, FILE_FORMAT)
 
     def notify(self, args):
         ui = None
