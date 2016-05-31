@@ -1,7 +1,7 @@
 define 'opendesk.on_demand.lib', (exports) ->
 
   # XXX an initial geometry function.
-  add = (params, choices, initial_geometry_value, param_name, factor) ->
+  add = (params, choices, [initial_geometry_value, param_name, factor]) ->
 
     # If the value is 0, that means the point is on the origin,
     # which means we don't want to move it.

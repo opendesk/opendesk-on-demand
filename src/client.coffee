@@ -4,6 +4,8 @@ define 'opendesk.on_demand.client', (exports) ->
     String::endsWith = (s) -> -1 isnt @indexOf s, @length - s.length
     String::contains = (s) -> @indexOf(s) > -1
 
+    generator = null
+
     ###*
     # Get the value of a querystring
     # @param  {String} field The field to get the value of
@@ -131,11 +133,93 @@ define 'opendesk.on_demand.client', (exports) ->
             _.extend this, Backbone.Events
             @listenTo @model, 'change:choice_doc', @generate
 
-        generate: ->
+        buildCache: ->
+            @cache = cache = []
             ast = @model.get 'obj_as_ast'
-            lines = _.map ast, @line
-            obj_string = lines.join '\n'
-            @model.set 'obj_string', obj_string
+            @geom = geom = new THREE.Geometry()
+            faces = geom.faces
+            normal = new THREE.Vector3 0, 0, 0
+            vertices = geom.vertices
+            vertexAdded = false
+            vcount = 0
+            used = 0
+            params = @model.get 'parameters'
+            for node in ast
+                type = node.type
+                if type == 'pass'
+                    if vertexAdded
+                        faces.push new THREE.Face3(vcount - 3, vcount - 2, vcount - 1, normal)
+                        vertexAdded = false
+                    line = node.line
+                    if line.startsWith "facet normal "
+                        split = line.split /\s+/
+                        normal = new THREE.Vector3 parseFloat(split[2]), parseFloat(split[3]), parseFloat(split[4])
+                else if type == 'vertex'
+                    ngeom = node.geometry
+                    xforms = {}
+                    seen = {}
+                    ts = node.transformations
+                    _.each ts, (t) ->
+                        _.each t, (sig, key) ->
+                            geom_value = ngeom[key]
+                            lib_func = opendesk.on_demand.lib[sig.use]
+                            throw "No `ngeom.#{ ngeom[key] }`." if not geom_value?
+                            throw "No `lib.#{ sig.use }`." if not lib_func?
+                            args = _.map sig.args, (a) ->
+                                switch
+                                    when a is '@'
+                                        geom_value
+                                    when _.isString(a) and a.startsWith '$'
+                                        a.slice 1
+                                    else
+                                        a
+                            xforms[key] = [lib_func, params, args]
+                    vec = new THREE.Vector3 0, 0, 0
+                    xforms.vec = vec
+                    if not xforms.x
+                        vec.setX ngeom.x
+                    if not xforms.y
+                        vec.setY ngeom.y
+                    if not xforms.z
+                        vec.setZ ngeom.z
+                    cache.push xforms
+                    vertices.push vec
+                    vertexAdded = true
+                    vcount += 1
+                else
+                    throw "Unknown node type: #{type}"
+
+        # generate: ->
+        #     start = Date.now()
+        #     ast = @model.get 'obj_as_ast'
+        #     lines = _.map ast, @line
+        #     obj_string = lines.join '\n'
+        #     @model.set 'obj_string', obj_string
+        #     console.log(Date.now() - start)
+
+        generate: ->
+            start = Date.now()
+            cache = @cache
+            if not cache
+                @buildCache()
+                cache = @cache
+            choices = @model.get 'choice_doc'
+            for xforms in cache
+                if xforms.x
+                    [lib_func, params, args] = xforms.x
+                    xforms.vec.setX lib_func params, choices, args
+                if xforms.y
+                    [lib_func, params, args] = xforms.y
+                    xforms.vec.setY lib_func params, choices, args
+                if xforms.z
+                    [lib_func, params, args] = xforms.z
+                    xforms.vec.setZ lib_func params, choices, args
+            geom = @geom
+            geom.verticesNeedUpdate = true
+            geom.computeBoundingBox()
+            geom.computeBoundingSphere()
+            console.log("GENERATE", Date.now() - start)
+            @model.set 'geom_obj', [@geom, Math.random()]
 
         line: (node, index, ast) =>
             params = @model.get 'parameters'
@@ -214,13 +298,17 @@ define 'opendesk.on_demand.client', (exports) ->
                 linewidth: 2
             @material = new THREE.LineBasicMaterial material_opts
             # Update when the object changes.
-            @listenTo @model, 'change:obj_string', @render
+            @listenTo @model, 'change:geom_obj', @render
 
         dims: ->
             width: @$el.width()
             height: $(window).height() * 0.8
 
-        render: (model, obj_string) =>
+        render: (model, [geom, rand]) =>
+            start = Date.now()
+            # console.log("EXIT RENDER")
+            # if true
+            #     return
             if @mesh?
                 @scene.remove @mesh
             if @edges?
@@ -228,9 +316,9 @@ define 'opendesk.on_demand.client', (exports) ->
             else
                 @edges = []
             @scene.remove child for child in @scene.children.reverse()
-            loader = new THREE.STLLoader
-            @geometry = loader.parse obj_string
-            @mesh = new THREE.Mesh @geometry, @material
+            # loader = new THREE.STLLoader
+            # @geometry = loader.parse obj_string
+            @mesh = new THREE.Mesh geom, @material
             @mesh.position.set 0, -0.25, 0.6
             @mesh.rotation.set 0, -Math.PI/2, 0
             @mesh.scale.set 0.2, 0.2, 0.2
@@ -240,6 +328,7 @@ define 'opendesk.on_demand.client', (exports) ->
             @scene.add @mesh
             @scene.add edges_helper
             @edges.push edges_helper
+            console.log("RENDER:", Date.now() - start)
 
         animate: =>
             if @mesh?
@@ -278,6 +367,7 @@ define 'opendesk.on_demand.client', (exports) ->
         complete = () ->
             if num_performed is num_requests
                 model.set data, validate: true
+                generator.buildCache()
 
     # Entry point -- call `main` to setup the client application.
     main = (options) ->
