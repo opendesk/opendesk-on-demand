@@ -20,7 +20,7 @@ from xlrd import open_workbook
 # import operator
 import math
 
-
+FILE_LOC'/Users/harry/Documents/github/opendesk-on-demand/wip_docs/dxf-ouputs/test.dxf'
 FEATURE_DICT = {'HOLES': [], 'TOPCUTINSIDE': [], 'TOPCUTOUTSIDE': [], 'TOPPOCKETINSIDE': []}
 # REVCUTINSIDE
 # TOPCUTINLINE
@@ -253,7 +253,7 @@ def run(context):
 
 
 def write_dxf(dxf_list):
-  file_loc = '/Users/harry/Documents/github/opendesk-on-demand/wip_docs/dxf-ouputs/test.dxf'
+  file_loc = FILE_LOC
 
   with open(file_loc, "w"):
       pass    
