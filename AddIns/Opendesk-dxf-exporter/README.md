@@ -3,7 +3,11 @@
 
 ## How to use
 
-Clone this repo to your local or download directly. Fire up Fusion360 and open the Scripts and Addins dialog box by pressing the "Addins" button in the "Model" ribbon. Toggle to the addins view and click the green "+" symbol. Navigate to the download location and click open. The addin is now loaded.
+Clone this repo to your local or download directly.
+
+Open the "Opendesk-dxf-exporter.py" file in a text editor and change the path of the variable "FILE_LOC" to somewhere appropraite for your machine and save.
+
+Fire up Fusion360 and open the Scripts and Addins dialog box by pressing the "Addins" button in the "Model" ribbon. Toggle to the addins view and click the green "+" symbol. Navigate to the download location and click open. The addin is now loaded.
 
 Run the addin on any model that has only single root compent and any number of separate solid bodies.
 
