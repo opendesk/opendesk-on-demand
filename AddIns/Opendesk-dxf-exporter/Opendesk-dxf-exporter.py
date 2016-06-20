@@ -20,7 +20,7 @@ from xlrd import open_workbook
 # import operator
 import math
 
-FILE_LOC'/Users/harry/Documents/github/opendesk-on-demand/wip_docs/dxf-ouputs/test.dxf'
+FILE_LOC = '/Users/harry/Documents/github/opendesk-on-demand/wip_docs/dxf-ouputs/test.dxf'
 FEATURE_DICT = {'HOLES': [], 'TOPCUTINSIDE': [], 'TOPCUTOUTSIDE': [], 'TOPPOCKETINSIDE': []}
 # REVCUTINSIDE
 # TOPCUTINLINE
@@ -245,12 +245,12 @@ def run(context):
 
     dxf_list = gen_dxf_list(FEATURE_DICT)
     write_dxf(dxf_list)
-    #ui.messageBox('done!')
+    ui.messageBox('done!')
 
   except:
     if ui:
-      print('Failed:\n{}'.format(traceback.format_exc()))
-
+      #print('Failed:\n{}'.format(traceback.format_exc()))
+      ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 def write_dxf(dxf_list):
   file_loc = FILE_LOC
