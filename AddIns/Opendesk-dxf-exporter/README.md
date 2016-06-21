@@ -3,7 +3,7 @@
 
 ## How to use
 
-Clone this repo to your local or download directly.
+Clone the "dxf-gen" branch of this repo to your local or download directly and navigate to the "/Addins/Opendesk-dxf-exporter".
 
 Open the "Opendesk-dxf-exporter.py" file in a text editor and change the path of the variable "FILE_LOC" to somewhere appropraite for your machine and save.
 
