@@ -5,9 +5,9 @@
 
 NOTE: Current version only works on Mac.
 
-Clone the "dxf-gen" branch of this repo to your local or download directly and navigate to the "/Addins/Opendesk-dxf-exporter".
+Clone the "dxf-gen" branch of this repo to your local or download directly and navigate to the "/Addins/Opendesk-dxf-exporter" directory.
 
-Open the "Opendesk-dxf-exporter.py" file in a text editor and change the path of the variable "FILE_LOC" to somewhere appropriate for your machine and save. Make sure you keep the name of the dxf (e.g "/test.dxf") and the file path you choose exists in your finder.
+Open the "Opendesk-dxf-exporter.py" file in a text editor and change the path of the variable "FILE_LOC" at the top of the file to somewhere appropriate for your machine and save. Make sure you keep the name of the dxf (e.g "/test.dxf") and the file path you choose exists in your finder.
 
 Fire up Fusion360 and open the Scripts and Addins dialog box by pressing the "Addins" button in the "Model" ribbon. Toggle to the addins view and click the green "+" symbol. Navigate to:
 
