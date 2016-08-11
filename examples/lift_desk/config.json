@@ -23,7 +23,7 @@
       "properties": {
         "z": {
           "use": "add",
-          "args": ["@", "$height", "0.5"]
+          "args": ["@", "$height", 0.5]
         }
       }
     },
@@ -39,7 +39,7 @@
       "properties": {
         "z": {
           "use": "add",
-          "args": ["@", "$height", "0.5"]
+          "args": ["@", "$height", 0.5]
         }
       }
     }
