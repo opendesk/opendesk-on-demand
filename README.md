@@ -41,7 +41,7 @@ The way we're proposing to do this is as follows:
      - render the revised `.obj` string using `THREE.OBJLoader.parse`
 4. control this using a [controller UI][] built from the `config.json#parameters`
 
-N.b.: in future, we can also consider writing the transformation functions in Python and transpiling to Javascript from Python, in order to support an an alternative 'no-webgl' Python server-side code-generation step that uses [Blender][] to render images.
+N.b.: in future, we can also consider writing the transformation functions in Python and transpiling to Javascript from Python, in order to support an alternative 'no-webgl' Python server-side code-generation step that uses [Blender][] to render images.
 
 [winnow]: http://opendesk.github.io/winnow/
 [this specification pipeline]: https://github.com/opendesk/winnow/raw/master/docs/product_pipeline_operator.pdf
